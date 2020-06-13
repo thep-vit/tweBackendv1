@@ -1,25 +1,8 @@
 const express = require("express")
 const User = require("../models/users")
-const { forwardAuth } = require("../middleware/auth")
+const passport = require("passport")
 
 const router = express.Router()
-
-
-// //Register Page
-// router.get('/register', (req, res) => res.render('register'));
-
-// // Login Page
-// router.get('/login', (req, res) => res.render('login'));
-
-// // Login
-// router.post('/login', (req, res, next) => {
-//     passport.authenticate('local', {
-//       successRedirect: '/dashboard',
-//       failureRedirect: '/users/login',
-//       failureFlash: true
-//     })(req, res, next);
-//   });
-  
 
 // Create Account
 router.post("/register", async (req,res) => {
@@ -42,5 +25,8 @@ router.post("/register", async (req,res) => {
 
 // Login
 
-
+router.post("/login", passport.authenticate('local'), (req,res) => {
+    console.log("Login Success")
+    res.send()
+})
 module.exports = router

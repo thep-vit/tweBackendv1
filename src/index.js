@@ -1,7 +1,14 @@
 const express = require("express")
 const expressLayouts = require('express-ejs-layouts');
+const cookieParser = require("cookie-parser")
+const session = require("express-session")
 require("./db/mongo")
+const passport = require("passport")
+const path = require("path")
+
 const userRouter = require("./routes/users")
+const indexRouter = require("./routes/index")
+const auth = require("./routes/auth")(passport)
 
 const app = express()
 
@@ -12,11 +19,26 @@ app.use(express.json())
 // Login Page Static
 app.use(express.static("public"))
 
+// Cookies
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
+
+// Express Session Initialise
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    saveUninitialized: false,
+    resave:false
+}))
+
+const viewsPath = path.join(__dirname,"./views")
 // Set View Engine
-app.use(expressLayouts);
+
 app.set('view engine', 'ejs');
+app.set("views",viewsPath)
+
 
 // Set Routers
+app.use("/",indexRouter)
 app.use("/users",userRouter)
 
 app.listen(port,()=>{

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require("validator")
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcryptjs")
 
 const userSchema = mongoose.Schema({
   name: {
@@ -56,20 +56,20 @@ userSchema.virtual( "articles", {
 
 //find and login users
 
-// userSchema.statics.findByCredentials = async (email, password) => {
-//     const findUser = await User.findOne({ email })
-//     // console.log(findUser)
-//     if(!findUser) {
-//         throw new Error ("Unable to Login!")
-//     }
-//     const isMatch = await bcrypt.compare(password, findUser.password)
+userSchema.statics.findByCredentials = async (email, password) => {
+    const findUser = await User.findOne({ email })
+    // console.log(findUser)
+    if(!findUser) {
+        throw new Error ("Unable to Login!")
+    }
+    const isMatch = await bcrypt.compare(password, findUser.password)
 
-//     if(!isMatch) {
-//         throw new Error("Unable to Login!")
-//     }
-//     return findUser
+    if(!isMatch) {
+        throw new Error("Unable to Login!")
+    }
+    return findUser
 
-// }
+}
 
 //hash plain text password before save
 userSchema.pre("save", async function(next) {
