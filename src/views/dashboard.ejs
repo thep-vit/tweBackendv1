@@ -1,0 +1,21 @@
+<h1 class="mt-4">Dashboard</h1>
+<p >Welcome <%= user.name %></p>
+
+<form action = "/submit" method="POST">
+  <label>Select article type: &nbsp;&nbsp;</label><select name="atype">
+    <% var options = ["News", "Editorial", "Movie Review", "Satirical News", "Other"]; %>
+    <% for(var i = 0; i <= 4; i++) { %>
+      <option name = "atype" value = "<%= options[i]%>"><%= options[i] %></option>
+    <% } %>
+  </select>
+  <div class="form-group">
+    <label class="col-form-label col-form-label-lg" for="inputLarge">Article Title</label>
+    <input class="form-control form-control-lg" type="text" placeholder="Article Title" name = "atitle" value = "<%= typeof atitle != 'undefined' ? atitle : '' %>" id="inputLarge">
+  </div>
+  <div class="form-group">
+    <label for="exampleTextarea"></label>
+    <textarea class="form-control" id="exampleTextarea" rows="3"  placeholder="Content Here" name = "acontent" value = "<%= typeof acontent != 'undefined' ? acontent : '' %>"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+<a href="/users/logout" class="btn btn-secondary" style="float: right;">Logout</a>
