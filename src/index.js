@@ -1,14 +1,12 @@
 const express = require("express")
-const expressLayouts = require('express-ejs-layouts');
+// const expressLayouts = require('express-ejs-layouts');
 const cookieParser = require("cookie-parser")
 const session = require("express-session")
 require("./db/mongo")
-const passport = require("passport")
 const path = require("path")
 
 const userRouter = require("./routes/users")
 const indexRouter = require("./routes/index")
-const auth = require("./routes/auth")(passport)
 
 const app = express()
 

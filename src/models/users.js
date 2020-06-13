@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require("validator")
 const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 
 const userSchema = mongoose.Schema({
   name: {
@@ -36,7 +37,12 @@ const userSchema = mongoose.Schema({
               throw new Error("department can be only twe or editorial")
           }
       }
-  },
+  }, tokens: [{
+    token: {
+        type: String,
+        required: true
+    }
+}],
 
   avatar: {
       type: Buffer
@@ -58,7 +64,6 @@ userSchema.virtual( "articles", {
 
 userSchema.statics.findByCredentials = async (email, password) => {
     const findUser = await User.findOne({ email })
-    // console.log(findUser)
     if(!findUser) {
         throw new Error ("Unable to Login!")
     }
@@ -83,6 +88,34 @@ userSchema.pre("save", async function(next) {
     next()
 
 })
+
+// return public profile whenever user info is returned ( hide password and token history)
+
+userSchema.methods.toJSON = function () {
+    const user = this
+    const userObject = user.toObject()
+
+    delete userObject.password
+    delete userObject.tokens
+    delete userObject.avatar
+
+    return userObject
+}
+
+//token generation and appending in model
+
+userSchema.methods.generateToken = async function () {
+    const findUser = this
+    const token = jwt.sign({ _id:findUser._id.toString() }, process.env.JWT_SECRET)
+    
+    findUser.tokens = findUser.tokens.concat({ token })
+    // console.log("TOKEN ADDED:",findUser)
+
+
+    await findUser.save()
+    return token
+
+}
 
 
 
