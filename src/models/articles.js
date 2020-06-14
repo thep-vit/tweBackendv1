@@ -3,7 +3,14 @@ const mongoose = require('mongoose');
 const articleSchema = mongoose.Schema({
     atype:{
         type:String,
-        required: true
+        required: true,
+        lowercase: true,
+        trim:true,
+        validate(value){
+            if (!(value==="editorial" || value==="irony" || value==="news" || value==="facts")) {
+                throw new Error("article allowed types: editorial, irony, news, facts")
+            }
+        }
     },
     atitle:{
         type: String,

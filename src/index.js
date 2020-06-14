@@ -2,9 +2,7 @@ require("./db/mongo")
 
 
 const express = require("express")
-// const expressLayouts = require('express-ejs-layouts');
 const cookieParser = require("cookie-parser")
-const session = require("express-session")
 const path = require("path")
 const hbs = require("hbs")
 

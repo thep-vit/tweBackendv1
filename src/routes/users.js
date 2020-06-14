@@ -1,22 +1,25 @@
 const express = require("express")
 const User = require("../models/users")
 const auth = require("../middleware/auth")
+const path = require("path")
 
 const router = express.Router()
 
 // Create Account
 router.post("/register", async (req,res) => {
+
     const newUser = new User(req.body)
     try{
-        console.log("Here1")
+        console.log("Register Route")
         await newUser.save()
-        // const token = await newUser.generateToken()
+        const token = await newUser.generateToken()
 
-        // res.cookie('auth_token', token)
-        // res.sendFile(path.resolve(__dirname, '..', 'views', 'private.html'))
+        // store the jwt after validatoin in a browser cookie
+        res.cookie('auth_token', token)
+        res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.html'))
 
-        res.status(201).send({newUser})
-        // console.log("S")
+        // res.status(201).send({newUser})
+        // redirect to dashboard
     } catch (e) {
         console.log(e)
         res.status(400).send(e)
@@ -31,7 +34,12 @@ router.post("/login", async (req,res) => {
         // console.log(userFound)
         const token = await userFound.generateToken()
         console.log("token")
-        res.send({userFound,token})
+
+        // store the jwt after validatoin in a browser cookie
+        res.cookie('auth_token', token)
+        res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.html'))
+
+        // res.send({userFound,token})
 
     } catch (e) {
         // console.log(e)
