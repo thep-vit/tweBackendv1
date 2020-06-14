@@ -6,6 +6,7 @@ require("./db/mongo")
 const path = require("path")
 
 const userRouter = require("./routes/users")
+const articleRouter = require("./routes/articles")
 const indexRouter = require("./routes/index")
 
 const app = express()
@@ -38,6 +39,7 @@ app.set("views",viewsPath)
 // Set Routers
 app.use("/",indexRouter)
 app.use("/users",userRouter)
+app.use("/articles",articleRouter)
 
 app.listen(port,()=>{
     console.log("Server Up on port"+port)

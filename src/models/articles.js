@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const articleSchema = mongoose.Schema({
     atype:{
         type:String,
-        required: true,
+        required: true
     },
     atitle:{
         type: String,
