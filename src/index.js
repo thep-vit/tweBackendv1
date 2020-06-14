@@ -11,6 +11,7 @@ const hbs = require("hbs")
 const userRouter = require("./routes/users")
 const articleRouter = require("./routes/articles")
 const indexRouter = require("./routes/index")
+const resetRouter = require("./routes/reset")
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -40,6 +41,7 @@ app.use(cookieParser())
 app.use("/",indexRouter)
 app.use("/users",userRouter)
 app.use("/articles",articleRouter)
+app.use("/reset",resetRouter)
 
 app.listen(port,()=>{
     console.log("Server Up on port"+port)

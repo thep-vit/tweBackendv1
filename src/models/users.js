@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require("validator")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
+const crypto = require('crypto');
 
 const userSchema = mongoose.Schema({
   name: {
@@ -37,12 +38,21 @@ const userSchema = mongoose.Schema({
               throw new Error("department can be only twe or editorial")
           }
       }
-  }, tokens: [{
+  }, 
+  tokens: [{
     token: {
         type: String,
         required: true
     }
 }],
+
+resetPasswordToken: {
+    type: String,
+},
+
+resetPasswordExpires: {
+    type: Date,
+},
 
   avatar: {
       type: Buffer
@@ -109,13 +119,17 @@ userSchema.methods.generateToken = async function () {
     const token = jwt.sign({ _id:findUser._id.toString() }, process.env.JWT_SECRET)
     
     findUser.tokens = findUser.tokens.concat({ token })
-    // console.log("TOKEN ADDED:",findUser)
-
-
+    console.log("TOKEN ADDED:",findUser)
     await findUser.save()
     return token
 
 }
+
+//Password reset token generation
+userSchema.methods.generatePasswordReset =  function(){
+    this.resetPasswordToken = jwt.sign({ _id:this._id.toString() }, process.env.JWT_SECRET)
+    this.resetPasswordExpires = Date.now() + 3600000;
+  };
 
 
 
