@@ -1,0 +1,52 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/stylesheet.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1> {{title}}</h1>
+    <div class="container">
+        <!-- <button type="button" class="btn btn-primary">Submit</button> -->
+    </div>
+    <div class="container">
+    {{!-- <form action="/articles" method="post">
+      
+        <div class="form-group">
+          <label for="atype">Article Type</label>
+          <input type="text" name="atype" class="form-control" id="atype" placeholder="Editorial">
+        </div>
+
+        <div class="form-group">
+          <label for="atitle">Article Title</label>
+          <input type="text" name="atitle" class="form-control" id="atitle" placeholder="What it means to stay mentally healthy">
+        </div>
+        
+        <div class="form-group">
+          <label for="acontent">Article Content - Paste you content here</label>
+          <input type="text" name="acontent" class="form-control" id="acontent" rows="50"></input>
+        </div>
+
+        <input type="submit" value="SUBMIT NOW">
+      </form> --}}
+
+
+      <form action="/articles" method="post">
+        <label for="atype">Article Type : </label>
+        <input type="text" name="atype"><br><br>
+        <label for="atitle">Article Title : </label>
+        <input type="text" name="atitle"><br><br>
+        <label for="acontent">Article Content : </label>
+        <input type="text" name="acontent"><br><br>
+        <input type="submit" value="Submit Article">
+    </form>
+
+
+    </div>
+
+
+
+</body>
+</html>

@@ -102,7 +102,7 @@ check('confirmPassword', 'Passwords do not match').custom((value, {req}) => (val
             to: foundUser.email,
             from: process.env.FROM_EMAIL,
             subject: "Your password has been changed",
-            text: `Hi ${foundUser.username} \n 
+            text: `Hi ${foundUser.name} \n 
             This is a confirmation that the password for your account ${foundUser.email} has just been changed.\n`
         };
 

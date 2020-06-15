@@ -6,6 +6,8 @@ const router = new express.Router()
 
 // POST new article
 router.post("/",auth, async(req,res)=>{
+    console.log("Before Post Article")
+    console.log("req body",req.body)
     const newArticle = new Article({
         ...req.body,
         author: req.user._id
@@ -13,7 +15,8 @@ router.post("/",auth, async(req,res)=>{
     
     try {
         await newArticle.save()
-        res.status(201).send(newArticle)
+        res.redirect("/users/dashboard")
+        // res.status(201).send(newArticle)
     } catch (e) {
         res.status(400).send()
     }

@@ -16,10 +16,11 @@ router.post("/register", async (req,res) => {
 
         // store the jwt after validatoin in a browser cookie
         res.cookie('auth_token', token)
-        res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.html'))
-
+        res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.hbs'))
+        
         // res.status(201).send({newUser})
         // redirect to dashboard
+        res.redirect("/users/dashboard")
     } catch (e) {
         console.log(e)
         res.status(400).send(e)
@@ -29,7 +30,6 @@ router.post("/register", async (req,res) => {
 // Login
 router.post("/login", async (req,res) => {
     try{
-        // console.log("befoe")
         const userFound = await User.findByCredentials(req.body.email, req.body.password)
         // console.log(userFound)
         const token = await userFound.generateToken()
@@ -37,12 +37,13 @@ router.post("/login", async (req,res) => {
 
         // store the jwt after validatoin in a browser cookie
         res.cookie('auth_token', token)
-        res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.html'))
+        // res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.hbs'))
+        res.redirect("/users/dashboard")
 
         // res.send({userFound,token})
 
     } catch (e) {
-        // console.log(e)
+        console.log(e)
         res.status(400).send(e)
     }
 })
@@ -71,6 +72,14 @@ router.post("/logoutAll", auth, async (req,res) => {
     } catch (e){
         res.status(500).send()
     }
+})
+
+// Private User Dashboard
+
+router.get("/dashboard",auth, (req,res)=> {
+    res.render("private-dashboard", {
+        title: "Dashboard"
+    })
 })
 
 // Update User Data
