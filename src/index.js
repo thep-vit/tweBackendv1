@@ -4,7 +4,7 @@ require("./db/mongo")
 const express = require("express")
 const cookieParser = require("cookie-parser")
 const path = require("path")
-const hbs = require("hbs")
+const expressLayouts = require('express-ejs-layouts');
 
 const userRouter = require("./routes/users")
 const articleRouter = require("./routes/articles")
@@ -18,13 +18,13 @@ app.use(express.json())
 
 
 
-const viewsPath = path.join(__dirname,"./templates/views")
-const partialsPath = path.join(__dirname,"./templates/partials")
+const viewsPath = path.join(__dirname,"./views")
+const partialsPath = path.join(__dirname,"./views/partials")
 
 // Set View Engine
-app.set("view engine", "hbs");
+app.use(expressLayouts);
+app.set("view engine", "ejs");
 app.set("views",viewsPath)
-hbs.registerPartials(partialsPath)
 
 // Static assests are served from public directory - css, js etc
 app.use(express.static("public"))

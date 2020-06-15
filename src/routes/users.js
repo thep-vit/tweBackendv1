@@ -5,8 +5,20 @@ const path = require("path")
 
 const router = express.Router()
 
+router.get("/signup", (req,res)=> {
+    res.render("signup", {
+        title: "Register"
+    })
+})
+
+router.get("/login", (req,res)=> {
+    res.render("login", {
+        title: "Login"
+    })
+})
+
 // Create Account
-router.post("/register", async (req,res) => {
+router.post("/signup", async (req,res) => {
 
     const newUser = new User(req.body)
     try{
@@ -49,14 +61,15 @@ router.post("/login", async (req,res) => {
 })
 
 // Logout User
-router.post("/logout", auth, async (req,res)=>{
+router.get("/logout", auth, async (req,res)=>{
     try {
         console.log(req.user)
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token!==req.token
         })
-        await req.user.save()
-        res.send()
+        await req.user.save();
+        
+        res.redirect('/users/login');
     } catch (e) {
         res.status(500).send()
     }
