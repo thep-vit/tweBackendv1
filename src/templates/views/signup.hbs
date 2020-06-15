@@ -7,9 +7,16 @@
 <body>
     <h1>Sign Up</h1>
 
-    <form action="/auth/signup" method="post">
-        <input type="text" name="email">
-        <input type="text" name="password">
+    <form action="/users/register" method="post">
+        
+        <label>Name : </label>
+        <input type="text" name="name" placeholder="Name"><br><br>
+        <label>Email : </label>
+        <input type="text" name="email" placeholder="Email"><br><br>
+        <label>Password : </label>
+        <input type="text" name="password" placeholder="Password"><br><br>
+        <label>Department : </label>
+        <input type="text" name="department" placeholder="Password"><br><br>
         <input type="submit" value="signup">
     </form>
 </body>
