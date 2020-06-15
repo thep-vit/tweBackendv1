@@ -1,17 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const {check } = require('express-validator');
+require("dotenv").config();
 
 // Load User model
 const User = require('../models/users');
 // const { render } = require('ejs');
 const nodemailer = require('nodemailer');
 
+const sEmail = process.env.SENDER_EMAIL;
+
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.SENDER_EMAIL,
-      pass: process.env.SENDER_EMAIL_PASS
+      user: 'abhinavgorantla0613@gmail.com',
+      pass: 'kjvebhnpgijovmpt'
     }
   });
 
@@ -31,9 +34,9 @@ router.post('/',  async (req, res) => {
         foundUser.generatePasswordReset();
 
         // Save the Updated User
-        resetTokenUser = await foundUser.save()
+        resetTokenUser = await foundUser.save();
 
-        let link = "http://" + req.headers.host + "/reset/reset/" + resetTokenUser.resetPasswordToken;
+        let link = "http://" + req.headers.host + "/reset/reset-password/" + resetTokenUser.resetPasswordToken;
                     const mailOptions = {
                         to: resetTokenUser.email,
                         from: process.env.SENDER_EMAIL,
@@ -45,11 +48,11 @@ router.post('/',  async (req, res) => {
 
                     transporter.sendMail(mailOptions, function(error, info){
                         if (error) {
-                            throw new Error("Could not email!")
+                            console.log(error);
+                        }else{
+                          console.log('Email sent: ' + info.response);
+                          res.status(200).redirect('reset-message')
                         }
-
-                        console.log('Email sent: ' + info.response);
-                        res.status(200).json({message: 'A reset email has been sent to ' + resetTokenUser.email + '.'})
 
                       })
 
@@ -64,7 +67,18 @@ router.get('/', (req, res) => {
     res.render('reset');
 });
 
-router.get('/reset/:token', async (req, res) => {
+//Display "Email sent" message
+router.get('/reset-message', (req, res) => {
+  res.render('reset-message');
+});
+
+//Display "PAssword Reset success" message
+
+router.get('/reset-success', (req, res) => {
+  res.render('reset-success');
+});
+
+router.get('/reset-password/:token', async (req, res) => {
     
     try{
         const foundUser = await User.findOne({resetPasswordToken: req.params.token, resetPasswordExpires: {$gt: Date.now()}})
@@ -73,20 +87,21 @@ router.get('/reset/:token', async (req, res) => {
         }
 
         //Redirect user to form with the email address
-        res.render('login', {user});
+        res.render('reset-password', {foundUser});
 
     } catch (e) {
+      console.log(e)
         res.status(500).send()
     }       
 
 });
 
-router.post('/reset/:token', check('password').not().isEmpty().isLength({min: 6}).withMessage('Must be at least 6 chars long'),
+router.post('/reset-password/:token', check('password').not().isEmpty().isLength({min: 6}).withMessage('Must be at least 6 chars long'),
 check('confirmPassword', 'Passwords do not match').custom((value, {req}) => (value === req.body.password)), async (req, res) =>{
     
     try {
 
-        const foundUser = await User.findOne({resetPasswordToken: req.params.token, resetPasswordExpires: {$gt: Date.now()}})
+        const foundUser = await User.findOne({resetPasswordToken: req.params.token})
         if(!foundUser){
             return res.status(401).json({message: 'Password reset token is invalid or has expired.'})
         }
@@ -109,7 +124,8 @@ check('confirmPassword', 'Passwords do not match').custom((value, {req}) => (val
         transporter.sendMail(mailOptions, (error, result) => {
             if (error) return res.status(500).json({message: error.message});
 
-            return res.status(200).json({message: 'Your password has been updated.'});
+            
+            res.redirect('/reset/reset-success');
         })
 
 
