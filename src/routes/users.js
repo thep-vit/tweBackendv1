@@ -27,9 +27,11 @@ router.post("/signup", async (req,res) => {
         const token = await newUser.generateToken()
 
         // store the jwt after validatoin in a browser cookie
-        res.cookie('auth_token', token)
-        res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.hbs'))
-        
+        res.cookie('auth_token', token);
+        req.flash(
+            'success_msg',
+            'You are now registered and can log in'
+          );
         // res.status(201).send({newUser})
         // redirect to dashboard
         res.redirect("/users/dashboard")
@@ -90,9 +92,12 @@ router.post("/logoutAll", auth, async (req,res) => {
 // Private User Dashboard
 
 router.get("/dashboard",auth, (req,res)=> {
+    var resMessage = "Test Message";
+    console.log(resMessage);
     res.render("private-dashboard", {
-        title: "Dashboard"
-    })
+        title: "Dashboard", 
+        message: resMessage
+    });
 })
 
 // Update User Data

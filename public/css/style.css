@@ -20,3 +20,8 @@ ul {
     margin: 0;
     padding: 0;
 }
+
+.invisible {
+    display: none;
+    visibility: hidden;
+       }

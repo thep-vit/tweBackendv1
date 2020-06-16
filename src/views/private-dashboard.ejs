@@ -15,9 +15,9 @@
 
 <div class="container-fluid" style="margin-top:80px">
   <h1 class="mt-4">Dashboard</h1>
+  <div id='status' class='message'><% message %></div>
 
-
-<form action = "/submit" method="POST">
+<form action = "/articles/" method="POST"  enctype = 'multipart/form-data'>
   <label>Select article type: &nbsp;&nbsp;</label><select name="atype">
     <% var options = ["News", "Editorial", "Movie Review", "Satirical News", "Other"]; %>
     <% for(var i = 0; i <= 4; i++) { %>
@@ -32,8 +32,19 @@
     <label for="exampleTextarea"></label>
     <textarea class="form-control" id="exampleTextarea" rows="3"  placeholder="Content Here" name = "acontent" value = "<%= typeof acontent != 'undefined' ? acontent : '' %>"></textarea>
   </div>
+  <div class="form-group">
+    <label class="col-form-label col-form-label-lg" for="inputLarge">Upload Image</label>
+    <input class="form-control form-control-lg" type="file" name="file" id='file'>
+  </div>
   <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 <a href="/users/logout" class="btn btn-secondary" style="float: right;">Logout</a>
 
 </div>
+
+<script>
+  if($('div#status').text()!='')
+  {
+            alert($('div#status').text());
+  }
+</script>
