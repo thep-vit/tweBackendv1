@@ -6,5 +6,6 @@ mongoose.connect(process.env.MONGODB_URL,{
     useUnifiedTopology:true,
     useCreateIndex: true,
     useFindAndModify: false
-}).then(()=> console.log("MONGO DB CONNECTED!")).catch((e)=>console.log("Cannot Connect to Mongo"))
-
+}).then(()=> {
+    console.log("MONGO DB CONNECTED!")
+}).catch((e)=>console.log("Cannot Connect to Mongo"))

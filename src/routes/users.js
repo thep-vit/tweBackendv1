@@ -47,10 +47,10 @@ router.post("/login", async (req,res) => {
         const userFound = await User.findByCredentials(req.body.email, req.body.password)
         // console.log(userFound)
         const token = await userFound.generateToken()
-        console.log("token")
+        // console.log("token")
 
         // store the jwt after validatoin in a browser cookie
-        res.cookie('auth_token', token)
+        // res.cookie('auth_token', token)
         // res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.hbs'))
         res.redirect("/users/dashboard")
 
@@ -92,8 +92,7 @@ router.post("/logoutAll", auth, async (req,res) => {
 // Private User Dashboard
 
 router.get("/dashboard",auth, (req,res)=> {
-    var resMessage = "Test Message";
-    console.log(resMessage);
+    var resMessage = "Test Message"
     res.render("private-dashboard", {
         title: "Dashboard", 
         message: resMessage

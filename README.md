@@ -6,7 +6,7 @@ This repository is for development of TWE Web Application for The Hindu Educatio
 
 Progress tested with basic ui for now
 
-![PROGRESS](imgaes/../images/backendProgress.png)
+![PROGRESS](imgaes/../images/backendProgress2.png)
 
 ## Progress
 
@@ -15,7 +15,7 @@ Progress tested with basic ui for now
 3. basic frontend with hbs dynamic rendering
 4. validation using validator during db storage
 5. auth middleware - checks for jwt token during login/signup and stored browser cookie.
-6. Other functionality to be added
+6. picture upload for each article
 
 &copy;
 Copyright of The Hindu Education Plus Club VIT Vellore

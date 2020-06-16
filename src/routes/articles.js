@@ -1,62 +1,35 @@
-const express = require("express");
 const Article = require("../models/articles");
-const fs = require('fs');
 const auth = require("../middleware/auth");
 const flash = require('connect-flash');
+const express = require("express");
+const sharp = require("sharp")
+const multer = require("multer")
 
-
-const crypto = require('crypto');
-const GridFsStorage = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
-const multer = require("multer");
-const path = require('path');
-const mongoose = require('mongoose');
-const { route } = require("./users");
-
-//Init gfs
-const mongoURI = 'mongodb://127.0.0.1:27017/twe';
-
-const conn = mongoose.createConnection(mongoURI,{useNewUrlParser:true});
-
-
-let gfs;
-
-conn.once('open', () => {
-  gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection('uploads');
-  console.log("connection made successfully");
-});
-
-
-const storage = new GridFsStorage({
-  url: mongoURI,
-  file: (req, file) => {
-    return new Promise((resolve, reject) => {
-      crypto.randomBytes(16, (err, buf) => {
-        if (err) {
-          return reject(err);
-        }
-        const filename = buf.toString('hex') + path.extname(file.originalname);
-        const fileInfo = {
-          filename: filename,
-          bucketName: 'uploads'
-        };
-        resolve(fileInfo);
-      });
-    });
-  }
-});
-const upload = multer({ storage });
 
 const router = new express.Router()
 
+const upload = multer({
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter(req,file,cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            return cb(new Error("Upload Proper File"))
+        }
+        cb(undefined,true)
+    }
+})
+
 // POST new article
-router.post("/",auth, upload.single('file'), async(req,res)=>{
+router.post("/",auth, upload.single("picture"), async(req,res)=>{
     // console.log("Before Post Article")
     // console.log("req body",req.body)
+    const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
+    
     const newArticle = new Article({
         ...req.body,
-        author: req.user._id
+        author: req.user._id,
+        picture: buffer
     })
     
     try {
@@ -70,68 +43,25 @@ router.post("/",auth, upload.single('file'), async(req,res)=>{
 
 })
 
+// GET picture
+router.get("/:id/picture", async (req,res) => {
+    try{
 
-//@route GET /articles/files
-//@desc Display details of all files 
-router.get('/files', (req, res) => {
-    gfs.files.find().toArray((err, files) => {
-        //Check if files
-        if(!files || files.length === 0){
-            res.status(404).json({
-                err: 'No files exist'
-            });
+        const article = await Article.findById(req.params.id)
+
+        if(!article || !article.picture) {
+            throw new Error("Article or Picture doesn't exist")
         }
 
-        //Files exist
-        return res.json(files);
-    })
+        res.set("Content-Type","image/png")
+        // console.log(user.avatar)
+        res.send(article.picture)
+    } catch (e) {
+        res.status(404).send()
+    }
 })
 
-// //@route GET /articles/files/:filename
-// //@desc Display single file 
-// router.get('/files/:filename', (req, res) =>{
-//     gfs.files.findOne({ filename: req.params.filename}, (err, file) => {
-//         //check if file
-//         if(!file || file.length === 0){
-//             return res.status(404).json({
-//                 err: 'No file found'
-//             });
-//         }
-//         //File exists
-//         return res.json(file);
-//     });
-// });
 
-//@route GET /articles/image/:filename
-//@desc Display image with filename 
-router.get('/files/:filename', (req, res) =>{
-
-    gfs.files.findOne({ filename: req.params.filename}, (err, file) => {
-        //check if file
-        if(!file || file.length === 0){
-            return res.status(404).json({
-                err: 'No file found'
-            });
-        }
-        //File exists
-        if(file.contentType === 'image/jpeg' || file.contentType === 'image/png'){
-            
-            // res.set('Content-Type', file.contentType);
-            // res.set('Content-Disposition', 'attachment; filename="' + file.filename + '"');
-
-            const readstream = gfs.createReadStream(file.filename);
-            readstream.on('error', function (err) {
-                console.error('Read error', err);
-                res.end();
-              });
-            readstream.pipe(res);
-        }else{
-            res.status(404).json({
-                err: 'File not found'
-            })
-        }
-    });
-});
 
 // GET /tasks?limit=2&skip=2
 // GET /tasks?sortBy=createdAt:asc

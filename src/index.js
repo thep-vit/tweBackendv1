@@ -1,4 +1,8 @@
-const conn = require("./db/mongo")
+require("./db/mongo")
+const userRouter = require("./routes/users")
+const articleRouter = require("./routes/articles")
+const indexRouter = require("./routes/index")
+const resetRouter = require("./routes/reset");
 
 
 const express = require("express")
@@ -7,12 +11,6 @@ const path = require("path")
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash');
 const session = require('express-session');
-
-const userRouter = require("./routes/users")
-const articleRouter = require("./routes/articles")
-const indexRouter = require("./routes/index")
-const resetRouter = require("./routes/reset");
-const { connect } = require("http2");
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -33,11 +31,14 @@ app.set("views",viewsPath);
 // Static assests are served from public directory - css, js etc
 app.use(express.static("public"))
 
+// Cookies
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
+
 //Flash messages
-app.use(cookieParser('secretString'));
 app.use(flash());
 app.use(session({
-	secret:'happy dog',
+	secret: process.env.SESSION_SECRET,
 	saveUninitialized: true,
     resave: true,
     cookie: { maxAge: 60000 }
@@ -50,9 +51,7 @@ app.use(function(req, res, next){
 });
 
 
-// Cookies
-app.use(express.urlencoded({ extended: false }))
-app.use(cookieParser())
+
 
 
 // Set Routers

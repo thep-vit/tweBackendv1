@@ -6,7 +6,6 @@ const User = require('../models/users');
 // const { render } = require('ejs');
 const nodemailer = require('nodemailer');
 
-const sEmail = process.env.SENDER_EMAIL;
 
 var transporter = nodemailer.createTransport({
     service: 'gmail',
