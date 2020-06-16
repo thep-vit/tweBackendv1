@@ -1,6 +1,5 @@
 const express = require("express");
 const Article = require("../models/articles");
-const Item = require('../models/items');
 const fs = require('fs');
 const auth = require("../middleware/auth");
 const flash = require('connect-flash');
