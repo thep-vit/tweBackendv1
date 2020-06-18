@@ -22,6 +22,7 @@ router.post("/signup", async (req,res) => {
 
     const newUser = new User(req.body)
     try{
+        console.log(req.body)
         console.log("Register Route")
         await newUser.save()
         const token = await newUser.generateToken()

@@ -3,6 +3,7 @@ const userRouter = require("./routes/users")
 const articleRouter = require("./routes/articles")
 const indexRouter = require("./routes/index")
 const resetRouter = require("./routes/reset");
+const apiRouter = require("./api/index")
 
 
 const express = require("express")
@@ -51,14 +52,12 @@ app.use(function(req, res, next){
 });
 
 
-
-
-
 // Set Routers
 app.use("/",indexRouter)
 app.use("/users",userRouter)
 app.use("/articles",articleRouter)
 app.use("/reset",resetRouter)
+app.use("/api",apiRouter)
 
 app.listen(port,()=>{
     console.log("Server Up on port"+port)
