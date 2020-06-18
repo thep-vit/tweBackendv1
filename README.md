@@ -6,7 +6,7 @@ This repository is for development of TWE Web Application for The Hindu Educatio
 
 Progress tested with basic ui for now
 
-![PROGRESS](../tweBackendv1/images/backendProgress2.png)
+![PROGRESS](./images/backendProgress2.png)
 
 ## Progress
 
@@ -23,7 +23,7 @@ Request Body or Request Query or Request Params are Null unless stated otherwise
 
 All Responses are in Status Codes and JSON
 
-User Routes: *api/users/*
+### User Routes: *api/users/*
 
 1. Create User - POST *api/users/signup*
    1. Request Body: JSON with name,email,password,department
@@ -57,7 +57,7 @@ User Routes: *api/users/*
    2. On Success: 200
    3. On delete Failiure: 500
 
-Article Routes: *api/articles/*
+### Article Routes: *api/articles/*
 
 1. Create Article - POST *api/articles*
    1. Request Body: JSON with atype,atitle,acontent,picture(picture is *type: file*)

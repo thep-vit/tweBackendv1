@@ -3,7 +3,7 @@ const userRouter = require("./routes/users")
 const articleRouter = require("./routes/articles")
 const indexRouter = require("./routes/index")
 const resetRouter = require("./routes/reset");
-const apiRouter = require("./api/index")
+const apiRouter = require("./api/api")
 
 
 const express = require("express")
