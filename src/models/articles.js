@@ -35,7 +35,16 @@ const articleSchema = mongoose.Schema({
     timestamps: true
 });
 
+// return article without picture when asked
 
+articleSchema.methods.toJSON = function () {
+    const article = this
+    const articleObject = article.toObject()
+
+    delete articleObject.picture
+
+    return articleObject
+}
 
 const Article = mongoose.model('Article', articleSchema);
 
