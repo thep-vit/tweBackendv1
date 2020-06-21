@@ -52,9 +52,9 @@ router.post("/users/signup", async (req,res) => {
             'success_msg',
             'You are now registered and can log in'
           );
-        // res.status(201).send({newUser})
+        res.status(201).send({newUser})
         // redirect to dashboard
-        res.redirect("/api/users/dashboard")
+        // res.redirect("/api/users/dashboard")
     } catch (e) {
         console.log(e)
         res.status(400).send(e)
