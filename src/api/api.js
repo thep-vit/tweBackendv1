@@ -191,6 +191,23 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     
 })
 
+//@route   /api/articles/comment/:id
+//@method  POST
+//@desc    Allows Admin to POST a comment to a particular post
+//@todo    Add admin auth
+router.post("/articles/comment/:id", auth, async(req, res) =>{
+
+    const foundArticle = await Article.findOne({_id: req.params.id});
+    if(foundArticle){
+        foundArticle.comments.push(req.body.comment);
+        await foundArticle.save()
+
+        res.send(req.user)
+    }else{
+        res.send(404, {message: "Article not found."});
+    }
+})
+
 // GET picture
 router.get("/articles/:id/picture", async (req,res) => {
     try{
