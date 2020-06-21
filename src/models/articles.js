@@ -29,7 +29,6 @@ const articleSchema = mongoose.Schema({
     },
     picture: {
         type: Buffer,
-        require:true
     }
 },{
     timestamps: true
