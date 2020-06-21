@@ -5,6 +5,7 @@ const multer = require("multer")
 const User = require("../models/users")
 const auth = require("../middleware/auth")
 const Article = require("../models/articles")
+const jwt = require("jsonwebtoken")
 
 
 
@@ -305,6 +306,28 @@ router.delete("/articles/:id", auth, async (req,res) => {
     }
 })
 
+
+// Dashboard Auth for Client
+
+router.post("/check/auth", async (req,res)=>{
+    try{
+        const token = req.header("Authorization").replace("Bearer ","") 
+        const decoded = jwt.verify(token,process.env.JWT_SECRET)
+        const user = await User.findOne( { _id: decoded._id, "tokens.token":token })
+        
+        if(!user) {
+            throw new Error()
+        }
+
+        if (user.isAdmin===true){
+            return res.send({"admin":true})
+        }
+        res.send({"admin":false})
+    } catch (e) {
+        console.log(e)
+        res.status(401).send("Please authenticate")
+    }
+})
 
 
 
