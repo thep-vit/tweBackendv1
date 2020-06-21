@@ -55,6 +55,10 @@ resetPasswordExpires: {
 
   avatar: {
       type: Buffer
+  },
+
+  isAdmin:{
+      type: Boolean
   }
 },{
     timestamps: true
