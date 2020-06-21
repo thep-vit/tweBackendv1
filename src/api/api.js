@@ -173,35 +173,20 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     // console.log("Before Post Article")
     // console.log("req body",req.body)
     const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
-    if(buffer){
-        const newArticle = new Article({
-            ...req.body,
-            author: req.user._id,
-            picture: buffer
-        })
-
-        try {
-            await newArticle.save();
-            res.locals.message = req.body.message;
-            // res.redirect("/users/dashboard").json( { message: 'your message' });
-            res.status(201).send(newArticle)
-        } catch (e) {
-            res.status(400).send()
-        }
-        
-    }else{
-        const newArticle = new Article({
-            ...req.body,
-            author: req.user._id
-        })
-        try {
-            await newArticle.save();
-            res.locals.message = req.body.message;
-            // res.redirect("/users/dashboard").json( { message: 'your message' });
-            res.status(201).send(newArticle)
-        } catch (e) {
-            res.status(400).send()
-        }
+    
+    const newArticle = new Article({
+        ...req.body,
+        author: req.user._id,
+        picture: buffer
+    })
+    
+    try {
+        await newArticle.save();
+        res.locals.message = req.body.message;
+        // res.redirect("/users/dashboard").json( { message: 'your message' });
+        res.status(201).send(newArticle)
+    } catch (e) {
+        res.status(400).send()
     }
     
 })
