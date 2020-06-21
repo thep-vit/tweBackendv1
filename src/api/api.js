@@ -322,7 +322,7 @@ router.post("/check/auth", async (req,res)=>{
         if (user.isAdmin===true){
             return res.send({"admin":true})
         }
-        res.send({"user": true, user})
+        res.send({"admin":false})
     } catch (e) {
         console.log(e)
         res.status(401).send("Please authenticate")
