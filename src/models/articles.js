@@ -30,6 +30,9 @@ const articleSchema = mongoose.Schema({
     picture: {
         type: Buffer
         // require:true
+    },
+    comments: {
+        type: Array
     }
 },{
     timestamps: true

@@ -52,9 +52,9 @@ router.post("/users/signup", async (req,res) => {
             'success_msg',
             'You are now registered and can log in'
           );
-        // res.status(201).send({newUser})
+        res.status(201).send({newUser})
         // redirect to dashboard
-        res.redirect("/api/users/dashboard")
+        // res.redirect("/api/users/dashboard")
     } catch (e) {
         console.log(e)
         res.status(400).send(e)
@@ -188,7 +188,24 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     } catch (e) {
         res.status(400).send(e)
     }
+    
+})
 
+//@route   /api/articles/comment/:id
+//@method  POST
+//@desc    Allows Admin to POST a comment to a particular post
+//@todo    Add admin auth
+router.post("/articles/comment/:id", auth, async(req, res) =>{
+
+    const foundArticle = await Article.findOne({_id: req.params.id});
+    if(foundArticle){
+        foundArticle.comments.push(req.body.comment);
+        await foundArticle.save()
+
+        res.send(req.user)
+    }else{
+        res.send(404, {message: "Article not found."});
+    }
 })
 
 // GET picture

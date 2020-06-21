@@ -29,7 +29,7 @@ const userSchema = mongoose.Schema({
 
   department: {
       type: String,
-      required: true,
+    //   required: true,
       trim:true,
       lowercase:true,
       validate(value){
