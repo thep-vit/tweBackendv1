@@ -172,12 +172,12 @@ const upload = multer({
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     // console.log("Before Post Article")
     // console.log("req body",req.body)
-    const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
+    // const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
     
     const newArticle = new Article({
         ...req.body,
         author: req.user._id,
-        picture: buffer
+        // picture: buffer
     })
     
     try {
@@ -186,7 +186,7 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
         // res.redirect("/users/dashboard").json( { message: 'your message' });
         res.status(201).send(newArticle)
     } catch (e) {
-        res.status(400).send()
+        res.status(400).send(e)
     }
     
 })

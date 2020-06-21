@@ -28,7 +28,12 @@ const articleSchema = mongoose.Schema({
         ref: 'User'
     },
     picture: {
+<<<<<<< HEAD
         type: Buffer,
+=======
+        type: Buffer
+        // require:true
+>>>>>>> b73568c955769938b322d78551120ea38586aa4c
     }
 },{
     timestamps: true
