@@ -1,6 +1,6 @@
 const express = require("express")
 const User = require("../models/users")
-const auth = require("../middleware/auth")
+const {auth, adminAuth} = require("../middleware/auth")
 const path = require("path")
 
 const router = express.Router()
