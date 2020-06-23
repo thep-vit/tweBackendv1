@@ -3,7 +3,7 @@ const router = express.Router()
 const sharp = require("sharp")
 const multer = require("multer")
 const User = require("../models/users")
-const auth = require("../middleware/auth")
+const {auth, adminAuth } = require("../middleware/auth")
 const Article = require("../models/articles")
 const jwt = require("jsonwebtoken")
 
@@ -22,39 +22,18 @@ router.get("", (req,res)=> {
 
 // ------------------------------------------- USER ROUTES ----------------------------------------------------
 
-router.get("/users/signup", (req,res)=> {
-    // res.render("signup", {
-    //     title: "Register"
-    // })
-    res.send()
-})
-
-router.get("/users/login", (req,res)=> {
-    // res.render("login", {
-    //     title: "Login"
-    // })
-    res.send()
-})
-
 // Create Account
 router.post("/users/signup", async (req,res) => {
 
     const newUser = new User(req.body)
     try{
-        console.log(req.body)
-        console.log("Register Route")
+        // console.log(req.body)
+        // console.log("Register Route")
         await newUser.save()
         const token = await newUser.generateToken()
 
-        // store the jwt after validatoin in a browser cookie
-        res.cookie('auth_token', token);
-        req.flash(
-            'success_msg',
-            'You are now registered and can log in'
-          );
-        res.status(200).send({newUser})
-        // redirect to dashboard
-        // res.redirect("/api/users/dashboard")
+
+        res.status(201).send({newUser,token})
     } catch (e) {
         console.log(e)
         res.status(400).send(e)
@@ -68,11 +47,6 @@ router.post("/users/login", async (req,res) => {
         // console.log(userFound)
         const token = await userFound.generateToken()
         // console.log("token")
-
-        // store the jwt after validatoin in a browser cookie
-        // res.cookie('auth_token', token)
-        // res.sendFile(path.resolve(__dirname,"..", 'templates/views', 'private-dashboard.hbs'))
-        // res.redirect("/users/dashboard")
 
         res.send({userFound,token})
 
@@ -92,9 +66,9 @@ router.post("/users/logout", auth, async (req,res)=>{
         await req.user.save();
         
         res.send()
-        // res.redirect('/users/login');
     } catch (e) {
-        res.status(500).send()
+        console.log(e)
+        res.status(500).send(e)
     }
 })
 
@@ -112,14 +86,6 @@ router.post("/users/logoutAll", auth, async (req,res) => {
 
 // Private User Dashboard
 
-router.get("/users/dashboard",auth, (req,res)=> {
-    // var resMessage = "Test Message"
-    // res.render("private-dashboard", {
-    //     title: "Dashboard", 
-    //     message: resMessage
-    // });
-    res.send()
-})
 
 // Update User Data
 router.patch("/users/me",auth, async (req,res) => {
@@ -149,6 +115,41 @@ router.delete("/users/me", auth, async (req,res) => {
     } catch (e) {
         console.log(e)
         res.status(500).send(e)
+    }
+})
+
+
+// Contributions
+
+router.get("/users/me/contribution", auth, async (req,res)=>{
+    try{
+        const myTotalContributionCount = await Article.countDocuments({ author:req.user._id})
+        const mysatireContributionCount = await Article.countDocuments({ author:req.user._id, atype:"satire"})
+        const myNewsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"news"})
+        const myFactsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"facts"})
+        const myEditorialContributionCount = await Article.countDocuments({ author:req.user._id, atype:"editorial"})
+
+        const totalContributionCount = await Article.countDocuments({})
+        const totalSatireContributions = await Article.countDocuments({ atype:"editorial"})
+        const totalNewsContributionCount = await Article.countDocuments({ atype:"news"})
+        const totalFactsContributionCount = await Article.countDocuments({ atype:"facts"})
+        const totaleEitorialContributionCount = await Article.countDocuments({ atype:"editorial"})
+
+
+        res.send({
+            totalContributionCount,
+            totalSatireContributions,
+            totalNewsContributionCount,
+            totalFactsContributionCount,
+            totaleEitorialContributionCount,
+            myTotalContributionCount,
+            mysatireContributionCount,
+            myNewsContributionCount,
+            myFactsContributionCount,
+            myEditorialContributionCount
+        })
+    } catch (e){
+        res.status(404).send(e)
     }
 })
 
@@ -323,6 +324,23 @@ router.delete("/articles/:id", auth, async (req,res) => {
     }
 })
 
+// ------------------------------------------- Admin Routes -------------------------------------------
+
+// Get all existing articles
+router.get("/admin/allarticles",auth,adminAuth, async (req,res)=>{
+    try{
+        const allarticles = await Article.find({})
+        if (!allarticles){
+            throw new Error()
+        }
+
+        res.send(allarticles)
+    } catch (e){
+        res.status(400).send()
+    }
+})
+
+// 
 
 // Dashboard Auth for Client
 
@@ -345,7 +363,5 @@ router.post("/check/auth", async (req,res)=>{
         res.status(401).send("Please authenticate")
     }
 })
-
-
 
 module.exports = router
