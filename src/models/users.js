@@ -58,7 +58,9 @@ resetPasswordExpires: {
   },
 
   isAdmin:{
-      type: Boolean
+      type: Boolean,
+      required:true,
+      default: false
   }
 },{
     timestamps: true
@@ -119,7 +121,7 @@ userSchema.methods.toJSON = function () {
 
 userSchema.methods.generateToken = async function () {
     const findUser = this
-    const token = jwt.sign({ _id:findUser._id.toString() }, process.env.JWT_SECRET)
+    const token = jwt.sign({ _id:findUser._id.toString(), isAdmin:findUser.isAdmin.toString() }, process.env.JWT_SECRET)
     
     findUser.tokens = findUser.tokens.concat({ token })
     // console.log("TOKEN ADDED:",findUser)
