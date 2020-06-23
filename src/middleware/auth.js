@@ -12,8 +12,7 @@ const auth = async function (req,res,next) {
         // const token = req.cookies['auth_token']
 
         const decoded = jwt.verify(token,process.env.JWT_SECRET)
-        const user = await User.findOne( { _id: decoded._id, "tokens.token":token })
-        
+        const user = await User.findOne( { _id: decoded._id,isAdmin:decoded.isAdmin, "tokens.token":token })
         if(!user) {
             throw new Error()
         }
@@ -27,5 +26,22 @@ const auth = async function (req,res,next) {
     }
 }
 
-// const adminAuth = ...
-module.exports = auth
+const adminAuth = function (req,res,next){
+    try{
+        const token = req.header("Authorization").replace("Bearer ","")
+        const decoded = jwt.verify(token,process.env.JWT_SECRET)
+        console.log("from Admin Auth: isAdmin: ",decoded.isAdmin)
+        if(decoded.isAdmin ==="false"){
+            throw new Error()
+        }
+
+        next()
+        
+    } catch(e){
+        res.status(401).send("You are not karan bhowmick.")
+    }
+}
+module.exports = {
+    auth,
+    adminAuth
+}

@@ -3,7 +3,7 @@ const router = express.Router()
 const sharp = require("sharp")
 const multer = require("multer")
 const User = require("../models/users")
-const auth = require("../middleware/auth")
+const {auth, adminAuth } = require("../middleware/auth")
 const Article = require("../models/articles")
 const jwt = require("jsonwebtoken")
 
@@ -47,12 +47,12 @@ router.post("/users/signup", async (req,res) => {
         const token = await newUser.generateToken()
 
         // store the jwt after validatoin in a browser cookie
-        res.cookie('auth_token', token);
-        req.flash(
-            'success_msg',
-            'You are now registered and can log in'
-          );
-        res.status(201).send({newUser})
+        // res.cookie('auth_token', token);
+        // req.flash(
+        //     'success_msg',
+        //     'You are now registered and can log in'
+        //   );
+        res.status(201).send({newUser,token})
         // redirect to dashboard
         // res.redirect("/api/users/dashboard")
     } catch (e) {
@@ -83,7 +83,7 @@ router.post("/users/login", async (req,res) => {
 })
 
 // Logout User
-router.post("/users/logout", auth, async (req,res)=>{
+router.post("/users/logout", auth,adminAuth, async (req,res)=>{
     try {
         // console.log(req.user)
         req.user.tokens = req.user.tokens.filter((token) => {

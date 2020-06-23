@@ -1,5 +1,5 @@
 const Article = require("../models/articles");
-const auth = require("../middleware/auth");
+const {auth, adminAuth} = require("../middleware/auth");
 const flash = require('connect-flash');
 const express = require("express");
 const sharp = require("sharp")
