@@ -83,7 +83,7 @@ router.post("/users/login", async (req,res) => {
 })
 
 // Logout User
-router.post("/users/logout", auth,adminAuth, async (req,res)=>{
+router.post("/users/logout", auth, async (req,res)=>{
     try {
         // console.log(req.user)
         req.user.tokens = req.user.tokens.filter((token) => {

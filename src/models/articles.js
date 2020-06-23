@@ -31,12 +31,12 @@ const articleSchema = mongoose.Schema({
         type: Buffer
         // require:true
     },
-    comments: [ {
-        comment: {
+    comments: [
+        {
             type:String,
             trim: true
         }
-    }]
+    ]
 },{
     timestamps: true
 });
