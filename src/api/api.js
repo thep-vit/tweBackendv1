@@ -135,31 +135,34 @@ router.delete("/users/me", auth, async (req,res) => {
 
 router.get("/users/me/contribution", auth, async (req,res)=>{
     try{
-        const myTotalContributionCount = await Article.countDocuments({ author:req.user._id})
-        const mysatireContributionCount = await Article.countDocuments({ author:req.user._id, atype:"satire"})
-        const myNewsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"news"})
-        const myFactsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"facts"})
-        const myEditorialContributionCount = await Article.countDocuments({ author:req.user._id, atype:"editorial"})
+        // const myTotalContributionCount = await Article.countDocuments({ author:req.user._id})
+        // const mysatireContributionCount = await Article.countDocuments({ author:req.user._id, atype:"satire"})
+        // const myNewsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"news"})
+        // const myFactsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"facts"})
+        // const myEditorialContributionCount = await Article.countDocuments({ author:req.user._id, atype:"editorial"})
 
-        const totalContributionCount = await Article.countDocuments({})
-        const totalSatireContributions = await Article.countDocuments({ atype:"editorial"})
-        const totalNewsContributionCount = await Article.countDocuments({ atype:"news"})
-        const totalFactsContributionCount = await Article.countDocuments({ atype:"facts"})
-        const totaleEitorialContributionCount = await Article.countDocuments({ atype:"editorial"})
+        // const totalContributionCount = await Article.countDocuments({})
+        // const totalSatireContributions = await Article.countDocuments({ atype:"editorial"})
+        // const totalNewsContributionCount = await Article.countDocuments({ atype:"news"})
+        // const totalFactsContributionCount = await Article.countDocuments({ atype:"facts"})
+        // const totaleEitorialContributionCount = await Article.countDocuments({ atype:"editorial"})
 
+        const contributionList = await User.find({}).select("contributions name")
+        // console.log(allNames)
+        res.send(contribution)
 
-        res.send({
-            totalContributionCount,
-            totalSatireContributions,
-            totalNewsContributionCount,
-            totalFactsContributionCount,
-            totaleEitorialContributionCount,
-            myTotalContributionCount,
-            mysatireContributionCount,
-            myNewsContributionCount,
-            myFactsContributionCount,
-            myEditorialContributionCount
-        })
+        // res.send({
+        //     totalContributionCount,
+        //     totalSatireContributions,
+        //     totalNewsContributionCount,
+        //     totalFactsContributionCount,
+        //     totaleEitorialContributionCount,
+        //     myTotalContributionCount,
+        //     mysatireContributionCount,
+        //     myNewsContributionCount,
+        //     myFactsContributionCount,
+        //     myEditorialContributionCount
+        // })
     } catch (e){
         res.status(404).send(e)
     }
