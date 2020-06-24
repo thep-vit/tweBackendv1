@@ -6,7 +6,7 @@ This repository is for development of TWE Web Application for The Hindu Educatio
 
 Progress tested with basic ui for now
 
-![PROGRESS](./images/backendProgress2.png)
+![PROGRESS](./images/backendProgress3.png)
 
 ## Progress
 
@@ -57,10 +57,20 @@ All Responses are in Status Codes and JSON
    2. On Success: 200
    3. On delete Failiure: 500
 
+7. Read User - GET *api/users/me*
+   1. Auth Header - 401 on Failure
+   2. On success - 200, UserObject of the jwt token
+   3. On failure - 404
+
+8. Read Contributions of all users - GET *api/users/me/contribution*
+   1. Auth Header - 401 on Failure
+   2. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
+   3. On Failure - 404
+
 ### Article Routes: *api/articles/*
 
 1. Create Article - POST *api/articles*
-   1. Request Body: JSON with atype,atitle,acontent,picture(picture is *type: file*)
+   1. Request Body: JSON with atype,atitle,acontent,picture(picture is *type: file*) -- UPDATE: Picture Upload Disabled for Now
    2. Auth Header (Here checks author also - only author can see their articles)
    3. On success: 200, created article
    4. On post Failiure: 500
@@ -95,6 +105,17 @@ All Responses are in Status Codes and JSON
    2. On Success:200, deleted article
    3. On patch failiure: 400
    4. On invalid ID: 404
+   
+### Admin Routes /api/admin/
+
+   1. Check Admin for Dashboard - POST /check/admin
+      1. On failure - 401 ,"Please Authenticate"
+      2. On success - 200, {"admin":true} or {"admin":false}
+
+   2. List all articles in the database (irrespective of edition etc) - POST /admin/allarticles
+      1. On Success - 200, List of all articles
+      2. Auth Header - On failiure 401 (could be user login auth failure or admin auth (from middleware) failure)
+      3. On Failure - 400
    
 
 &copy;
