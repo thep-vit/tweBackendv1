@@ -61,6 +61,29 @@ resetPasswordExpires: {
       type: Boolean,
       required:true,
       default: false
+  },
+
+  contributions:{
+    myTotalContribution: {
+        type: Number,
+        default:0
+    },
+    myTotalNewsContibution: {
+        type: Number,
+        default:0
+    },
+    myTotalSatireContribution: {
+        type: Number,
+        default:0
+    },
+    myTotalFactsContribution: {
+        type: Number,
+        default:0
+    },
+    myTotalEditorialContribution: {
+        type: Number,
+        default:0
+    }
   }
 },{
     timestamps: true

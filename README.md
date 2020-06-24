@@ -34,7 +34,7 @@ All Responses are in Status Codes and JSON
 2. Login User - POST *api/users/login*
    1. Request Body: email,password
    2. On Success: 200, {user,token}
-   3. On post failiure: 400
+   3. On post failure: 400
 
 
 3. Logout User - POST *api/users/logout* & Logout from everywhere *api/users/logoutAll*
