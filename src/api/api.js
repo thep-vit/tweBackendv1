@@ -56,6 +56,18 @@ router.post("/users/login", async (req,res) => {
     }
 })
 
+// Returns currently logged in user whos making the request. 'My User Object'
+router.get("/users/me",auth,async (req,res)=> {
+    try{
+        if (!req.user){
+            throw new Error()
+        }
+        res.send(req.user)
+    } catch(e){
+        res.send(404)
+    }
+})
+
 // Logout User
 router.post("/users/logout", auth, async (req,res)=>{
     try {
@@ -182,11 +194,12 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     })
     
     try {
-        await newArticle.save();
-        res.locals.message = req.body.message;
+        await newArticle.save()
+        res.locals.message = req.body.message
         // res.redirect("/users/dashboard").json( { message: 'your message' });
         res.status(201).send(newArticle)
     } catch (e) {
+        console.log(e)
         res.status(400).send(e)
     }
     
@@ -198,14 +211,16 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
 //@todo    Add admin auth
 router.post("/articles/comment/:id", auth, async(req, res) =>{
 
-    const foundArticle = await Article.findOne({_id: req.params.id});
-    if(foundArticle){
+    try{
+        const foundArticle = await Article.findOne({_id: req.params.id})
+        if(!foundArticle){
+            return res.status(404).send()
+        }
         foundArticle.comments.push(req.body.comment);
         await foundArticle.save()
-
         res.send(req.user)
-    }else{
-        res.send(404, {message: "Article not found."});
+    } catch (e){
+        res.status(400).send()
     }
 })
 
@@ -315,11 +330,35 @@ router.patch("/articles/:id", auth, async (req,res) => {
 router.delete("/articles/:id", auth, async (req,res) => {
     try {
         const deletedArticle = await Article.findOneAndDelete({_id:req.params.id, author: req.user._id})
+        console.log(deletedArticle)
+        
         if (!deletedArticle){
             return res.status(404).send()
         }
+
+        // Update User Contribution
+        const user = await User.findOne({_id:deletedArticle.author})
+        user.contributions.myTotalContribution -=1
+        // console.log("This prints before deleting, after user is updated:",user.contributions.myTotalContribution)
+        switch(deletedArticle.atype){
+            case "satire":
+                user.contributions.myTotalSatireContribution -=1
+                break
+            case "news":
+                user.contributions.myTotalNewsContribution -=1
+                break
+            case "editorial":
+                user.contributions.myTotalEditorialContribution -=1
+                break
+            case "facts":
+                user.contributions.myTotalFactsContribution -=1
+                break
+        }
+        await user.save()
+
         res.send(deletedArticle)
     } catch (e) {
+        console.log(e)
         res.status(500).send()
     }
 })
