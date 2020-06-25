@@ -105,6 +105,13 @@ All Responses are in Status Codes and JSON
    2. On Success:200, deleted article
    3. On patch failiure: 400
    4. On invalid ID: 404
+
+7. Approve and Select Edition Route - */articles/select/edition/:id*
+   1. Request Param : Article ID
+   2. Request Body : JSON with approved:true/false and edition:'edition number'
+   3. On Success:200, updated article with new approved and edition value
+   4. On Auth Failure - 401
+   5. On Failure - 400
    
 ### Admin Routes /api/admin/
 
@@ -117,6 +124,20 @@ All Responses are in Status Codes and JSON
       2. Auth Header - On failiure 401 (could be user login auth failure or admin auth (from middleware) failure)
       3. On Failure - 400
    
+
+### Edition Routes /api/edition
+
+1. Create Edition - POST */edition/create/*
+   1. On Success - 201, edition
+   2. Auth Header - (also Admin only) - 401 on Failure
+   3. On Failure - 400
+
+2. Read Edition details by edition number - GET */edition/:number*
+   1. req.params.number is edition number 'enumber' in edition object
+   2. On success - 200, edition
+   3. Auth Header - (also Admin only) - 401 on Failure
+   4. On Failure - 400
+
 
 &copy;
 Copyright of The Hindu Education Plus Club VIT Vellore
