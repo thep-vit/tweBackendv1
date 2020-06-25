@@ -2,10 +2,12 @@ const express = require("express")
 const router = express.Router()
 const sharp = require("sharp")
 const multer = require("multer")
+const jwt = require("jsonwebtoken")
 const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
 const Article = require("../models/articles")
-const jwt = require("jsonwebtoken")
+const Edition = require("../models/edition")
+
 
 
 
@@ -47,7 +49,6 @@ router.post("/users/login", async (req,res) => {
         // console.log(userFound)
         const token = await userFound.generateToken()
         // console.log("token")
-
         res.send({userFound,token})
 
     } catch (e) {
@@ -149,7 +150,7 @@ router.get("/users/me/contribution", auth, async (req,res)=>{
 
         const contributionList = await User.find({}).select("contributions name")
         // console.log(allNames)
-        res.send(contribution)
+        res.send(contributionList)
 
         // res.send({
         //     totalContributionCount,
@@ -164,6 +165,7 @@ router.get("/users/me/contribution", auth, async (req,res)=>{
         //     myEditorialContributionCount
         // })
     } catch (e){
+        console.log(e)
         res.status(404).send(e)
     }
 })
@@ -185,6 +187,7 @@ const upload = multer({
 })
 
 // POST new article
+// create article
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     // console.log("Before Post Article")
     // console.log("req body",req.body)
@@ -198,7 +201,26 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     
     try {
         await newArticle.save()
-        res.locals.message = req.body.message
+        
+        const user = req.user
+        user.contributions.myTotalContribution +=1
+        // console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
+        switch(newArticle.atype){
+            case "satire":
+                user.contributions.myTotalSatireContribution +=1
+                break
+            case "news":
+                user.contributions.myTotalNewsContribution +=1
+                break
+            case "editorial":
+                user.contributions.myTotalEditorialContribution +=1
+                break
+            case "facts":
+                user.contributions.myTotalFactsContribution +=1
+                break
+        }
+        await user.save()
+        // res.locals.message = req.body.message
         // res.redirect("/users/dashboard").json( { message: 'your message' });
         res.status(201).send(newArticle)
     } catch (e) {
@@ -221,7 +243,7 @@ router.post("/articles/comment/:id", auth, async(req, res) =>{
         }
         foundArticle.comments.push(req.body.comment);
         await foundArticle.save()
-        res.send(req.user)
+        res.send(foundArticle)
     } catch (e){
         res.status(400).send()
     }
@@ -367,6 +389,39 @@ router.delete("/articles/:id", auth, async (req,res) => {
     }
 })
 
+// select edition for article
+
+router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
+    try {
+
+        const edition = await Edition.findOne({enumber:req.body.edition})
+        // console.log(edition)
+        if (!edition){
+            return res.status(404).send("Edition Not Found")
+        }
+
+        var article = await Article.findOne({_id:req.params.id})
+        // console.log(article)
+        if(!article){
+            return res.status(404).send("Article Not Found")
+        }
+
+        article.approved = req.body.approved
+        // console.log("before",article)
+        // console.log("edition:",edition._id)
+        article["edition"] = edition._id
+        // console.log("after",article)
+
+        await article.save()
+        res.send(article)
+
+    } catch (e){
+        console.log(e)
+        res.status(400).send()
+    }
+})
+
+
 // ------------------------------------------- Admin Routes -------------------------------------------
 
 // Get all existing articles
@@ -404,6 +459,42 @@ router.post("/check/auth", async (req,res)=>{
     } catch (e) {
         console.log(e)
         res.status(401).send("Please authenticate")
+    }
+})
+
+// ------------------------------------------- Admin Routes -------------------------------------------
+
+
+// create edition
+router.post("/edition/create",auth,adminAuth, async (req,res)=> {
+    const newEdition = new Edition(req.body)
+    try{
+        await newEdition.save()
+        res.status(201).send(newEdition)
+    } catch (e){
+        console.log(e)
+        res.status(400).send(e)
+    }
+})
+
+
+// get edition details by number
+router.get("/edition/:number", auth, adminAuth, async (req,res)=> {
+    try{
+        const edition = await Edition.findOne({enumber:req.params.number})
+        // console.log(edition)
+        await edition.populate({
+            path: "articles"
+        }).execPopulate()
+
+        if (!edition){
+            return res.status(404).send()
+        }
+        res.send(edition.toObject({virtuals: true}))
+
+    } catch(e){
+        console.log(e)
+        res.status(500).send(e)
     }
 })
 

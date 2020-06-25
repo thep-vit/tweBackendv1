@@ -6,7 +6,7 @@ This repository is for development of TWE Web Application for The Hindu Educatio
 
 Progress tested with basic ui for now
 
-![PROGRESS](./images/backendProgress2.png)
+![PROGRESS](./images/backendProgress3.png)
 
 ## Progress
 
@@ -57,10 +57,20 @@ All Responses are in Status Codes and JSON
    2. On Success: 200
    3. On delete Failiure: 500
 
+7. Read User - GET *api/users/me*
+   1. Auth Header - 401 on Failure
+   2. On success - 200, UserObject of the jwt token
+   3. On failure - 404
+
+8. Read Contributions of all users - GET *api/users/me/contribution*
+   1. Auth Header - 401 on Failure
+   2. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
+   3. On Failure - 404
+
 ### Article Routes: *api/articles/*
 
 1. Create Article - POST *api/articles*
-   1. Request Body: JSON with atype,atitle,acontent,picture(picture is *type: file*)
+   1. Request Body: JSON with atype,atitle,acontent,picture(picture is *type: file*) -- UPDATE: Picture Upload Disabled for Now
    2. Auth Header (Here checks author also - only author can see their articles)
    3. On success: 200, created article
    4. On post Failiure: 500
@@ -95,7 +105,39 @@ All Responses are in Status Codes and JSON
    2. On Success:200, deleted article
    3. On patch failiure: 400
    4. On invalid ID: 404
+
+7. Approve and Select Edition Route - */articles/select/edition/:id*
+   1. Request Param : Article ID
+   2. Request Body : JSON with approved:true/false and edition:'edition number'
+   3. On Success:200, updated article with new approved and edition value
+   4. On Auth Failure - 401
+   5. On Failure - 400
    
+### Admin Routes /api/admin/
+
+   1. Check Admin for Dashboard - POST /check/admin
+      1. On failure - 401 ,"Please Authenticate"
+      2. On success - 200, {"admin":true} or {"admin":false}
+
+   2. List all articles in the database (irrespective of edition etc) - POST /admin/allarticles
+      1. On Success - 200, List of all articles
+      2. Auth Header - On failiure 401 (could be user login auth failure or admin auth (from middleware) failure)
+      3. On Failure - 400
+   
+
+### Edition Routes /api/edition
+
+1. Create Edition - POST */edition/create/*
+   1. On Success - 201, edition
+   2. Auth Header - (also Admin only) - 401 on Failure
+   3. On Failure - 400
+
+2. Read Edition details by edition number - GET */edition/:number*
+   1. req.params.number is edition number 'enumber' in edition object
+   2. On success - 200, edition
+   3. Auth Header - (also Admin only) - 401 on Failure
+   4. On Failure - 400
+
 
 &copy;
 Copyright of The Hindu Education Plus Club VIT Vellore
