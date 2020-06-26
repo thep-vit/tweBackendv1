@@ -499,4 +499,50 @@ router.get("/edition/:number", async (req,res)=> {
     }
 })
 
+
+// POST HOV link
+
+router.post("/edition/adminhovpost/:id",auth,adminAuth, async(req,res)=> {
+    try{
+        const edition = await Edition.findById(req.params.id)
+        if (!edition){
+            return res.status(404).send()
+        }
+
+        edition.hov.push(req.body.hov)
+        await edition.save()
+        res.send(edition)
+    } catch (e){
+        res.status(400).send()
+    }
+})
+
+// update edition
+router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
+    const updateFieldsReq = Object.keys(req.body)
+    const validFields = ["ename", "enumber"]
+    const isValidateFields = updateFieldsReq.every( (field) => validFields.includes(field))
+
+    if (!isValidateFields){
+        return res.status(400).send({ "error":"Invalid Update Requested"})
+    }
+
+    try{
+        const edition = await Edition.findOne({_id: req.params.id})
+        updateFieldsReq.forEach((updateField) => edition[updateField] = req.body[updateField])
+
+        // const updatedTask = await Task.findByIdAndUpdate(req.params.id,req.body,{ new: true, runValidators: true})
+        if (!edition){
+            return res.status(404).send()
+        }
+                
+        await edition.save()
+        res.send(edition)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e)
+    }
+
+})
+
 module.exports = router

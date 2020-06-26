@@ -129,7 +129,7 @@ All Responses are in Status Codes and JSON
 
 1. Create Edition - POST */edition/create/*
    1. On Success - 201, edition
-   2. Auth Header - (also Admin only) - 401 on Failure
+   2. Admin Auth - 401 on Failure
    3. On Failure - 400
 
 2. Read Edition details by edition number - GET */edition/:number*
@@ -138,6 +138,20 @@ All Responses are in Status Codes and JSON
    3. On success - 200, edition
    4. On Failure - 400
 
+3. Admin Add HOV Link to Edition - PATCH */edition/adminhovpost/:id*
+   1. req.params.id : edition id
+   2. req.body JSON with "hov" : "youtube link"
+   3. Admin auth
+   4. On success - 200, edition
+   5. On Failure - 400
+
+4. Update Edition - PATCH */edition/update/:id*
+   1. Request Param: Edition ID
+   2. Request Body: JSON with key value pairs to be updated  (ename, enumber)
+   3. Admin auth
+   4. On Success:200, updated edition
+   5. On patch failiure: 400
+   6. On invalid ID: 404
 
 &copy;
 Copyright of The Hindu Education Plus Club VIT Vellore
