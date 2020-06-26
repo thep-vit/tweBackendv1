@@ -109,7 +109,7 @@ All Responses are in Status Codes and JSON
 7. Approve and Select Edition Route - */articles/select/edition/:id*
    1. Request Param : Article ID
    2. Request Body : JSON with approved:true/false and edition:'edition number'
-   3. On Success:200, updated article with new approved and edition value
+   3. On Success:200, updated article with new approved and (edition (id),editionNumber)
    4. On Auth Failure - 401
    5. On Failure - 400
    
@@ -134,8 +134,8 @@ All Responses are in Status Codes and JSON
 
 2. Read Edition details by edition number - GET */edition/:number*
    1. req.params.number is edition number 'enumber' in edition object
-   2. On success - 200, edition
-   3. Auth Header - (also Admin only) - 401 on Failure
+   2. Public - No Authorization
+   3. On success - 200, edition
    4. On Failure - 400
 
 
