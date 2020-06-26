@@ -7,7 +7,7 @@ const articleSchema = mongoose.Schema({
         lowercase: true,
         trim:true,
         validate(value){
-            if (!(value==="editorial" || value==="satire" || value==="news" || value==="facts")) {
+            if (!(value==="editorial" || value==="satire" || value==="news" || value==="facts" || value==="movie")) {
                 throw new Error("article allowed types: editorial, satire, news, facts")
             }
         }

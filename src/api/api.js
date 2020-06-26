@@ -298,6 +298,7 @@ router.get("/articles/list", auth, async (req,res) => {
         if (!req.user){
             return res.status(404).send()
         }
+        console.log(req.user.articles)
         res.send(req.user.articles)
     } catch (e) {
         console.log(e)
