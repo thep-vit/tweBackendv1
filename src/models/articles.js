@@ -45,6 +45,14 @@ const articleSchema = mongoose.Schema({
     edition: {
         type: mongoose.Schema.Types.ObjectId,
         ref:'Edition'
+    },
+    editionNumber: {
+        type: Number,
+        validate(value){
+            if (value<0){
+                throw error("Edition Number is to be positive")
+            }
+        }
     }
 },{
     timestamps: true
