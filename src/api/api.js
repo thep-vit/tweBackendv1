@@ -502,7 +502,7 @@ router.get("/edition/:number", async (req,res)=> {
 
 // POST HOV link
 
-router.post("/edition/adminhovpost/:id",auth,adminAuth, async(req,res)=> {
+router.patch("/edition/adminhovpost/:id",auth,adminAuth, async(req,res)=> {
     try{
         const edition = await Edition.findById(req.params.id)
         if (!edition){
