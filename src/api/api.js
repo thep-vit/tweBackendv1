@@ -356,7 +356,7 @@ router.patch("/articles/:id", auth, async (req,res) => {
 router.delete("/articles/:id", auth, async (req,res) => {
     try {
         const deletedArticle = await Article.findOneAndDelete({_id:req.params.id, author: req.user._id})
-        console.log(deletedArticle)
+        // console.log(deletedArticle)
         
         if (!deletedArticle){
             return res.status(404).send()
@@ -479,7 +479,7 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
 
 
 // get edition details by number
-router.get("/edition/:number", auth, adminAuth, async (req,res)=> {
+router.get("/edition/:number", async (req,res)=> {
     try{
         const edition = await Edition.findOne({enumber:req.params.number})
         // console.log(edition)

@@ -1,0 +1,1094 @@
+{
+	"info": {
+		"_postman_id": "1ca78d88-6814-4d6e-9f02-57614e6090bc",
+		"name": "twe",
+		"description": "The Weekly Edge App",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "API",
+			"item": [
+				{
+					"name": "Create User Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "48b9c32e-cff2-498a-ac32-a8dab4b7296b",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    pm.environment.set(\"authorToken\",pm.response.json().token)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Test user - Sanjit CKS\",\n\t\"email\": \"sanjitcks@gmail.com\",\n\t\"password\" : \"Hello12123\",\n\t\"department\" : \"twe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/users/signup",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (admin and notadmin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0e5ca1ef-3535-413e-9647-fd10469b2e04",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"authorToken\",pm.response.json().token)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"notadmin@gmail.com\",\n\t\"password\":\"Hello12123\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/users/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/users/logout",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User from All Devices Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/users/logoutAll",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"logoutAll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Comment Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": \"Check your grammer\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/articles/comment/5ef2eb01ffd1e656b12b16df",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles",
+								"comment",
+								"5ef2eb01ffd1e656b12b16df"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"password\" : \"HelloHelloHello\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"password\" : \"HelloHelloHello\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Article Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"atype\":\"satire\",\n\t\"atitle\" : \"Task 3 for test\",\n\t\"acontent\" : \"Hola\"\n\t\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/articles/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"articles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read User",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/articles/5eef350cb34ecbbb69d2f9b3",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"articles",
+								"5eef350cb34ecbbb69d2f9b3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all articles for me",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/articles/list",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"articles",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete article Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/articles/5eef350cb34ecbbb69d2f9b3",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles",
+								"5eef350cb34ecbbb69d2f9b3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get article by id Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/articles/5eef350cb34ecbbb69d2f9b3",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"articles",
+								"5eef350cb34ecbbb69d2f9b3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin get all articles ",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contribution details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update article Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"atitle\": \"changed\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/articles/5eef35d07de4b3bb8d950873",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles",
+								"5eef35d07de4b3bb8d950873"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "public auth",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/check/auth",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"check",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Edtion",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ename\":\"Edtion 1\",\n    \"enumber\":1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/edition/create",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"edition",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Select Article Edition and Approve",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ename\":\"Edtion 1\",\n    \"enumber\":1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/articles/select/edition/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"articles",
+								"select",
+								"edition",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Select Article Edition and Approve Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/edition/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"edition",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Local UI Routes ",
+			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "84083527-620b-46ea-8bbb-dcbfddb144fc",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    pm.environment.set(\"authorToken\",pm.response.json().token)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Test user - Sanjit CKS\",\n\t\"email\": \"sanjitcks@gmail.com\",\n\t\"password\" : \"Hello12123\",\n\t\"department\" : \"twe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/signup",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2ffbb64a-7823-4653-8c84-748efc1cda69",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"authorToken\",pm.response.json().token)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"user4@gmail.com\",\n\t\"password\": \"HelloHelloHello\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/users/logout",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User from All Devices",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/users/logoutAll",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"logoutAll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Article",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"atype\":\"World\",\n\t\"atitle\" : \"Trump asks people to inject disinfectants \",\n\t\"acontent\" : \"On a super controversial note POTUS Donald Trump asked his citizens to inject thempselves with disinfectant and expose themselves to UV radiation\"\n\t\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/articles/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload article picture",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "picture",
+									"type": "file",
+									"src": "/Users/sanjitkumar/Downloads/node-course-images/philly.jpg"
+								},
+								{
+									"key": "atype",
+									"value": "Editorial",
+									"type": "text"
+								},
+								{
+									"key": "atitle",
+									"value": "Test Title",
+									"type": "text"
+								},
+								{
+									"key": "acontent",
+									"value": "Test Content Lorem Ipsum",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/articles/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all articles in database",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/articles",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get article by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/articles/5ee5fccd672e936622355ebd",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles",
+								"5ee5fccd672e936622355ebd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\" : \"HelloHelloHello1\",\n    \"confirmPassword\":\"HelloHelloHello1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/reset/reset/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZWU2NTIxNjZhODZiZjg2ZThlNzQwMmQiLCJpYXQiOjE1OTIxNTI2NDR9.V9QDPgKV7xn8wL2yh3NsC5U93poWUvorJBLCbkcFKgg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"reset",
+								"reset",
+								"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZWU2NTIxNjZhODZiZjg2ZThlNzQwMmQiLCJpYXQiOjE1OTIxNTI2NDR9.V9QDPgKV7xn8wL2yh3NsC5U93poWUvorJBLCbkcFKgg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"password\" : \"HelloHelloHello\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update article",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/articles/5ee5fccd672e936622355ebd",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles",
+								"5ee5fccd672e936622355ebd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"password\" : \"HelloHelloHello\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete article",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/articles/5ee5ffaf36bf7f6701342d0a",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"articles",
+								"5ee5ffaf36bf7f6701342d0a"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Create User Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "78a59b5e-b542-4b76-8772-6df1baa394ce",
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    pm.environment.set(\"authorToken\",pm.response.json().token)",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Test user\",\n\t\"email\": \"testtest@gmail.com\",\n\t\"password\" : \"Hello12123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://thepc.herokuapp.com/api/users/signup",
+					"protocol": "http",
+					"host": [
+						"thepc",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"users",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reset password",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/reset",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"reset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check Deploy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://thepc.herokuapp.com/api/check/auth",
+					"protocol": "http",
+					"host": [
+						"thepc",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"check",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Deploy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d8c4df84-f9d1-49ee-9e71-80e0726bc4b8",
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    pm.environment.set(\"authorToken\",pm.response.json().token)",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\":\"user 2\",\n    \"email\": \"user@name123.com\",\n\t\"password\": \"username\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://thepc.herokuapp.com/api/users/signup",
+					"protocol": "http",
+					"host": [
+						"thepc",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"users",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "See Contribution",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authorToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "ba560485-f75a-4e45-ab54-60fbe08dccc1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "83674ab5-7dc7-4bdf-8239-8616fe2f3341",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
