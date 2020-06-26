@@ -409,6 +409,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
         // console.log("before",article)
         // console.log("edition:",edition._id)
         article["edition"] = edition._id
+        article["editionNumber"] = edition.enumber
         // console.log("after",article)
 
         await article.save()
