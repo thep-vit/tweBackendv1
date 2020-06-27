@@ -46,26 +46,31 @@ All Responses are in Status Codes and JSON
 4. Get Dashboard *api/users/dashboard*, Login *api/users/login*, Signup *api/users/signup*
    1. Give back 200 - Render from react
 
-5. Update User - PATCH *api/users/me*
+5. Fetch User Name by ID - GET */api/users/name/:id*
+   1. No Auth
+   2. Success - 200, user's name as *string* (not object)
+   3. Failiure - 400 /(If not found 404)
+
+6. Update User - PATCH *api/users/me*
    1. Request Body: JSON with keys as valid fields that can be changed (name, email,password,age,department)
    2. Auth Header - 401 on Failiure
    3. On Success: 200, updated user
    4. On Failiure (patch or invalid update): 400
 
-6. Delete User - DELETE *api/users/me*
+7. Delete User - DELETE *api/users/me*
    1. Auth Header - 401 on Failiure
    2. On Success: 200
    3. On delete Failiure: 500
 
-7. Read User - GET *api/users/me*
+8. Read User - GET *api/users/me*
    1. Auth Header - 401 on Failure
    2. On success - 200, UserObject of the jwt token
    3. On failure - 404
 
-8. Read Contributions of all users - GET *api/users/me/contribution*
-   1. Auth Header - 401 on Failure
-   2. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
-   3. On Failure - 404
+9.  Read Contributions of all users - GET *api/users/me/contribution*
+   4. Auth Header - 401 on Failure
+   5. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
+   6. On Failure - 404
 
 ### Article Routes: *api/articles/*
 

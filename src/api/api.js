@@ -97,7 +97,20 @@ router.post("/users/logoutAll", auth, async (req,res) => {
     }
 })
 
-// Private User Dashboard
+// Get Name of Author
+router.get("/users/name/:id", async (req,res)=> {
+    try {
+        const userName = await User.findById(req.params.id).select("name")
+        if (!userName){
+            return res.status(404).send
+        }
+        res.send(userName.name)
+        
+        
+    } catch (e){
+        res.status(400).send()
+    }
+})
 
 
 // Update User Data
