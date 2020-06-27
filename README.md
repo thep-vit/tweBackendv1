@@ -46,26 +46,31 @@ All Responses are in Status Codes and JSON
 4. Get Dashboard *api/users/dashboard*, Login *api/users/login*, Signup *api/users/signup*
    1. Give back 200 - Render from react
 
-5. Update User - PATCH *api/users/me*
+5. Fetch User Name by ID - GET */api/users/name/:id*
+   1. No Auth
+   2. Success - 200, user's name as *string* (not object)
+   3. Failiure - 400 /(If not found 404)
+
+6. Update User - PATCH *api/users/me*
    1. Request Body: JSON with keys as valid fields that can be changed (name, email,password,age,department)
    2. Auth Header - 401 on Failiure
    3. On Success: 200, updated user
    4. On Failiure (patch or invalid update): 400
 
-6. Delete User - DELETE *api/users/me*
+7. Delete User - DELETE *api/users/me*
    1. Auth Header - 401 on Failiure
    2. On Success: 200
    3. On delete Failiure: 500
 
-7. Read User - GET *api/users/me*
+8. Read User - GET *api/users/me*
    1. Auth Header - 401 on Failure
    2. On success - 200, UserObject of the jwt token
    3. On failure - 404
 
-8. Read Contributions of all users - GET *api/users/me/contribution*
-   1. Auth Header - 401 on Failure
-   2. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
-   3. On Failure - 404
+9.  Read Contributions of all users - GET *api/users/me/contribution*
+   4. Auth Header - 401 on Failure
+   5. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
+   6. On Failure - 404
 
 ### Article Routes: *api/articles/*
 
@@ -106,7 +111,7 @@ All Responses are in Status Codes and JSON
    3. On patch failiure: 400
    4. On invalid ID: 404
 
-7. Approve and Select Edition Route - */articles/select/edition/:id*
+7. Approve and Select Edition Route - PATCH */articles/select/edition/:id*
    1. Request Param : Article ID
    2. Request Body : JSON with approved:true/false and edition:'edition number'
    3. On Success:200, updated article with new approved and (edition (id),editionNumber)
@@ -129,7 +134,7 @@ All Responses are in Status Codes and JSON
 
 1. Create Edition - POST */edition/create/*
    1. On Success - 201, edition
-   2. Auth Header - (also Admin only) - 401 on Failure
+   2. Admin Auth - 401 on Failure
    3. On Failure - 400
 
 2. Read Edition details by edition number - GET */edition/:number*
@@ -138,6 +143,20 @@ All Responses are in Status Codes and JSON
    3. On success - 200, edition
    4. On Failure - 400
 
+3. Admin Add HOV Link to Edition - PATCH */edition/adminhovpost/:id*
+   1. req.params.id : edition id
+   2. req.body JSON with "hov" : "youtube link"
+   3. Admin auth
+   4. On success - 200, edition
+   5. On Failure - 400
+
+4. Update Edition - PATCH */edition/update/:id*
+   1. Request Param: Edition ID
+   2. Request Body: JSON with key value pairs to be updated  (ename, enumber)
+   3. Admin auth
+   4. On Success:200, updated edition
+   5. On patch failiure: 400
+   6. On invalid ID: 404
 
 &copy;
 Copyright of The Hindu Education Plus Club VIT Vellore
