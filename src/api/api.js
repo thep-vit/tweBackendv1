@@ -515,9 +515,14 @@ router.get("/edition/:number", async (req,res)=> {
 
 // POST HOV link
 
-router.patch("/edition/adminhovpost/:id",auth,adminAuth, async(req,res)=> {
+router.patch("/edition/adminhovpost/:number",auth,adminAuth, async(req,res)=> {
     try{
-        const edition = await Edition.findById(req.params.id)
+        const redundantEditionsCheck = await Edition.count({enumber:req.params.number})
+        // console.log(redundantEditionsCheck)
+        if (redundantEditionsCheck>1){
+            return res.status(400).send("More than one edition's with enumber:"+req.params.enumber)
+        }
+        const edition = await Edition.findOne({enumber:req.params.number})
         if (!edition){
             return res.status(404).send()
         }
