@@ -3,11 +3,12 @@ const router = express.Router()
 const sharp = require("sharp")
 const multer = require("multer")
 const jwt = require("jsonwebtoken")
+const {check } = require('express-validator')
+const nodemailer = require('nodemailer')
 const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
 const Article = require("../models/articles")
 const Edition = require("../models/edition")
-
 
 
 
@@ -145,6 +146,101 @@ router.delete("/users/me", auth, async (req,res) => {
 })
 
 
+// @route POST api/users/recover
+// @desc Recover Password - Generates token and Sends password reset email
+// @access Public
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'abhinavgorantla0613@gmail.com',
+      pass: 'kjvebhnpgijovmpt'
+    }
+  });
+
+router.post('/users/recover',  async (req, res) => {
+    try {
+        foundUser = await User.findOne({email: req.body.email})
+        
+        if (!foundUser) {
+            return res.status(401).json({message: 'The email address ' + req.body.email + ' is not associated with any account. Double-check your email address and try again.'});
+        }
+
+        // Generate and set password reset token
+        foundUser.generatePasswordReset();
+
+        // Save the Updated User
+        resetTokenUser = await foundUser.save();
+
+        let link = "http://" + req.headers.host + "/api/users/recover/" + resetTokenUser.resetPasswordToken;
+                    const mailOptions = {
+                        to: resetTokenUser.email,
+                        from: process.env.SENDER_EMAIL,
+                        subject: "Password change request",
+                        text: `Hi ${resetTokenUser.name} \n 
+                    Please click on the following link ${link} to reset your password. \n\n 
+                    If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+                    }
+
+                    transporter.sendMail(mailOptions, function(error, info){
+                        if (error) {
+                            console.log(error);
+                        }else{
+                          console.log('Email sent: ' + info.response);
+                          res.status(200).send('Email sent successfully.')
+                        }
+
+                      })
+
+
+    } catch (e) {
+        res.status(500).json({message: err.message})
+    }
+});
+
+
+// @route POST api/users/recover/:token
+// @desc    Resets password from the link sent to user email
+// @access Public
+
+router.post('/users/recover/:token', check('password').not().isEmpty().isLength({min: 6}).withMessage('Must be at least 6 chars long'),
+check('confirmPassword', 'Passwords do not match').custom((value, {req}) => (value === req.body.password)), async (req, res) =>{
+    
+    try {
+
+        const foundUser = await User.findOne({resetPasswordToken: req.params.token})
+        if(!foundUser){
+            return res.status(401).json({message: 'Password reset token is invalid or has expired.'})
+        }
+
+        //Set the new password
+        foundUser.password = req.body.password;
+        foundUser.resetPasswordToken = undefined;
+        foundUser.resetPasswordExpires = undefined;
+
+        await foundUser.save()
+
+        const mailOptions = {
+            to: foundUser.email,
+            from: process.env.FROM_EMAIL,
+            subject: "Your password has been changed",
+            text: `Hi ${foundUser.name} \n 
+            This is a confirmation that the password for your account ${foundUser.email} has just been changed.\n`
+        };
+
+        transporter.sendMail(mailOptions, (error, result) => {
+            if (error) return res.status(500).json({message: error.message});
+            res.send(`Password reset successfully for ${foundUser.name}.`)
+        })
+
+
+    } catch (e) {
+        res.status(500).json({message: err.message})
+    }
+
+    
+
+});
+
 // Contributions
 
 router.get("/users/me/contribution", auth, async (req,res)=>{
@@ -256,7 +352,7 @@ router.post("/articles/comment/:id", auth, async(req, res) =>{
         }
         foundArticle.comments.push(req.body.comment);
         await foundArticle.save()
-        res.send(foundArticle)
+        res.status(200).send(foundArticle)
     } catch (e){
         res.status(400).send()
     }
@@ -445,10 +541,21 @@ router.get("/admin/allarticles",auth,adminAuth, async (req,res)=>{
         if (!allarticles){
             throw new Error()
         }
+        var allarticlesWithName = new Array()
+        for (i=0;i<allarticles.length;i++){
+            currentAuthorID = allarticles[i].author
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            console.log(currentAuthorName.name)
+            let currentArticle = allarticles[i].toObject()
+            currentArticle["authorName"] = currentAuthorName.name
+            allarticlesWithName.push(currentArticle)
+        }
 
-        res.send(allarticles)
+        // console.log(allarticles)
+        res.send(allarticlesWithName)
     } catch (e){
-        res.status(400).send()
+        console.log(e)
+        res.status(400).send(e)
     }
 })
 
@@ -501,24 +608,62 @@ router.get("/edition/:number", async (req,res)=> {
             path: "articles"
         }).execPopulate()
 
+        var editionWithAuthorNames = edition.toObject()
+        var allarticlesWithName = new Array()
+        for (i=0;i<edition.articles.length;i++){
+            currentAuthorID = edition.articles[i].author
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            console.log(edition.articles.name)
+            let currentArticle = edition.articles[i].toObject()
+            currentArticle["authorName"] = currentAuthorName.name
+            allarticlesWithName.push(currentArticle)
+        }
+
+        // console.log(allarticlesWithName)
+        editionWithAuthorNames.articles = allarticlesWithName
+        
+
         if (!edition){
             return res.status(404).send()
         }
-        res.send(edition.toObject({virtuals: true}))
-
+        // res.send(edition.toObject({virtuals: true}))
+        res.send(editionWithAuthorNames)
     } catch(e){
         console.log(e)
         res.status(500).send(e)
     }
 })
 
+// all editions list without content
+
+router.get("/edition", async (req,res)=> {
+    try{
+        const editionList = await Edition.find({})
+
+        if(!editionList){
+            return res.status(404).send("No Editions Found")
+        }
+
+        res.send(editionList)
+    } catch(e){
+        console.log(e)
+        res.status(400).send(e)
+    }
+})
+
+
 
 // POST HOV link
 
-router.patch("/edition/adminhovpost/:id",auth,adminAuth, async(req,res)=> {
+router.patch("/edition/adminhovpost/:number",auth,adminAuth, async(req,res)=> {
     try{
-        const edition = await Edition.findById(req.params.id)
-        if (!edition){
+        const redundantEditionsCheck = await Edition.countDocuments({enumber:req.params.number})
+        // console.log(redundantEditionsCheck)
+        if (redundantEditionsCheck>1){
+            return res.status(400).send("More than one edition's with enumber:"+req.params.enumber)
+        }
+        const edition = await Edition.findOne({enumber:req.params.number})
+        if (!edition || !req.body.hov){
             return res.status(404).send()
         }
 
@@ -526,7 +671,8 @@ router.patch("/edition/adminhovpost/:id",auth,adminAuth, async(req,res)=> {
         await edition.save()
         res.send(edition)
     } catch (e){
-        res.status(400).send()
+        console.log(e)
+        res.status(400).send(e)
     }
 })
 
@@ -557,5 +703,7 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
     }
 
 })
+
+
 
 module.exports = router
