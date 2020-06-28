@@ -143,8 +143,8 @@ All Responses are in Status Codes and JSON
    3. On success - 200, edition
    4. On Failure - 400
 
-3. Admin Add HOV Link to Edition - PATCH */edition/adminhovpost/:id*
-   1. req.params.id : edition id
+3. Admin Add HOV Link to Edition - PATCH */edition/adminhovpost/:number*
+   1. req.params.number : edition number
    2. req.body JSON with "hov" : "youtube link"
    3. Admin auth
    4. On success - 200, edition
