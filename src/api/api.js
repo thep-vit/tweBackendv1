@@ -445,10 +445,21 @@ router.get("/admin/allarticles",auth,adminAuth, async (req,res)=>{
         if (!allarticles){
             throw new Error()
         }
+        var allarticlesWithName = new Array()
+        for (i=0;i<allarticles.length;i++){
+            currentAuthorID = allarticles[i].author
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            console.log(currentAuthorName.name)
+            let currentArticle = allarticles[i].toObject()
+            currentArticle["authorName"] = currentAuthorName.name
+            allarticlesWithName.push(currentArticle)
+        }
 
-        res.send(allarticles)
+        // console.log(allarticles)
+        res.send(allarticlesWithName)
     } catch (e){
-        res.status(400).send()
+        console.log(e)
+        res.status(400).send(e)
     }
 })
 
