@@ -67,10 +67,20 @@ All Responses are in Status Codes and JSON
    2. On success - 200, UserObject of the jwt token
    3. On failure - 404
 
+9. Request Password Reset - POST *api/users/recover*
+   1. No Auth 
+   2. On success - 200
+   3. On failure - 500
+
+9. Reset User Password - POST *api/users/recover/:token*
+   1. No Auth
+   2. On success - 200
+   3. On failure - 500
+
 9.  Read Contributions of all users - GET *api/users/me/contribution*
-   4. Auth Header - 401 on Failure
-   5. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
-   6. On Failure - 404
+   1. Auth Header - 401 on Failure
+   2. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
+   3. On Failure - 404
 
 ### Article Routes: *api/articles/*
 
@@ -133,9 +143,10 @@ All Responses are in Status Codes and JSON
 ### Edition Routes /api/edition
 
 1. Create Edition - POST */edition/create/*
-   1. On Success - 201, edition
-   2. Admin Auth - 401 on Failure
-   3. On Failure - 400
+   1. Input - JSON with ename, enumber,edesc (edesc len <= 5000 chars)
+   2. On Success - 201, edition
+   3. Admin Auth - 401 on Failure
+   4. On Failure - 400
 
 2. Read Edition details by edition number - GET */edition/:number*
    1. req.params.number is edition number 'enumber' in edition object
@@ -143,14 +154,19 @@ All Responses are in Status Codes and JSON
    3. On success - 200, edition
    4. On Failure - 400
 
-3. Admin Add HOV Link to Edition - PATCH */edition/adminhovpost/:number*
+3. All Edition Details without articles - GET */edition*
+   1. Public - No Authorization
+   2. On success - 200, editions
+   3. On Failure - 400,404
+
+4. Admin Add HOV Link to Edition - PATCH */edition/adminhovpost/:number*
    1. req.params.number : edition number
    2. req.body JSON with "hov" : "youtube link"
    3. Admin auth
    4. On success - 200, edition
    5. On Failure - 400
 
-4. Update Edition - PATCH */edition/update/:id*
+5. Update Edition - PATCH */edition/update/:id*
    1. Request Param: Edition ID
    2. Request Body: JSON with key value pairs to be updated  (ename, enumber)
    3. Admin auth
