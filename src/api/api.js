@@ -512,11 +512,26 @@ router.get("/edition/:number", async (req,res)=> {
             path: "articles"
         }).execPopulate()
 
+        var editionWithAuthorNames = edition.toObject()
+        var allarticlesWithName = new Array()
+        for (i=0;i<edition.articles.length;i++){
+            currentAuthorID = edition.articles[i].author
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            console.log(edition.articles.name)
+            let currentArticle = edition.articles[i].toObject()
+            currentArticle["authorName"] = currentAuthorName.name
+            allarticlesWithName.push(currentArticle)
+        }
+
+        // console.log(allarticlesWithName)
+        editionWithAuthorNames.articles = allarticlesWithName
+        
+
         if (!edition){
             return res.status(404).send()
         }
-        res.send(edition.toObject({virtuals: true}))
-
+        // res.send(edition.toObject({virtuals: true}))
+        res.send(editionWithAuthorNames)
     } catch(e){
         console.log(e)
         res.status(500).send(e)
