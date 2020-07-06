@@ -523,6 +523,24 @@ router.get("/edition/:number", async (req,res)=> {
     }
 })
 
+// all editions list without content
+
+router.get("/edition", async (req,res)=> {
+    try{
+        const editionList = await Edition.find({})
+
+        if(!editionList){
+            return res.status(404).send("No Editions Found")
+        }
+
+        res.send(editionList)
+    } catch(e){
+        console.log(e)
+        res.status(400).send(e)
+    }
+})
+
+
 
 // POST HOV link
 
@@ -574,5 +592,7 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
     }
 
 })
+
+
 
 module.exports = router
