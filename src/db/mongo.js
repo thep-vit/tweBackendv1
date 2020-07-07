@@ -8,4 +8,4 @@ mongoose.connect(process.env.MONGODB_URL,{
     useFindAndModify: false
 }).then(()=> {
     console.log("MONGO DB CONNECTED!")
-}).catch((e)=>console.log("Cannot Connect to Mongo",e))
+}).catch((e)=>console.log("Cannot Connect to Mongo"))

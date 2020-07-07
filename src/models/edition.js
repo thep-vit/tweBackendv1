@@ -16,16 +16,6 @@ const editionSchema = mongoose.Schema({
             }
         }
     },
-    edesc: {
-        type: String,
-        required: true,
-        trim:true,
-        validate(value){
-            if (value.length>5000){
-                throw new Error("Edition description cannot be more than 5000 chars")
-            }
-        }
-    },
     hov: [{
         // type: mongoose.SchemaTypes.URL
         type:String

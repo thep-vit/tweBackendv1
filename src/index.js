@@ -39,19 +39,19 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 //Flash messages
-app.use(flash())
+app.use(flash());
 app.use(session({
 	secret: process.env.SESSION_SECRET,
 	saveUninitialized: true,
     resave: true,
     cookie: { maxAge: 60000 }
-}))
+}));
 
 app.use(function(req, res, next){
-    res.locals.success_messages = req.flash('success_messages')
-    res.locals.error_messages = req.flash('error_messages')
-    next()
-})
+    res.locals.success_messages = req.flash('success_messages');
+    res.locals.error_messages = req.flash('error_messages');
+    next();
+});
 
 
 // Set Routers
