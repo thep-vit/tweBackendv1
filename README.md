@@ -123,7 +123,7 @@ All Responses are in Status Codes and JSON
 
 7. Approve and Select Edition Route - PATCH */articles/select/edition/:id*
    1. Request Param : Article ID
-   2. Request Body : JSON with approved:true/false and edition:'edition number'
+   2. Request Body : JSON with approved: "approved"/"rejected" and edition:'edition number'
    3. On Success:200, updated article with new approved and (edition (id),editionNumber)
    4. On Auth Failure - 401
    5. On Failure - 400
