@@ -514,7 +514,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
         if(!article){
             return res.status(404).send("Article Not Found")
         }
-
+        article = article
         article.approved = req.body.approved
         // console.log("before",article)
         // console.log("edition:",edition._id)
@@ -525,7 +525,9 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
             res.send(article)
         } else if(article.approved === "rejected") {
             // console.log("rejected")
-            console.log(article)
+            article.edition = undefined
+            article.editionNumber = undefined
+            // console.log(article)
             await article.save()
             res.send("article rejected")
         } else {
