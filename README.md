@@ -67,10 +67,20 @@ All Responses are in Status Codes and JSON
    2. On success - 200, UserObject of the jwt token
    3. On failure - 404
 
+9. Request Password Reset - POST *api/users/recover*
+   1. No Auth 
+   2. On success - 200
+   3. On failure - 500
+
+9. Reset User Password - POST *api/users/recover/:token*
+   1. No Auth
+   2. On success - 200
+   3. On failure - 500
+
 9.  Read Contributions of all users - GET *api/users/me/contribution*
-   4. Auth Header - 401 on Failure
-   5. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
-   6. On Failure - 404
+   1. Auth Header - 401 on Failure
+   2. On Success - 200, List of objects with id,name and contribution field objects - (that in turn has myTotalContribution,myTotalNewsContibution,mySatireNewsContibution,myTotalFactsContibution,myEditorialNewsContibution)
+   3. On Failure - 404
 
 ### Article Routes: *api/articles/*
 
