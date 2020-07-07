@@ -515,19 +515,21 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
             return res.status(404).send("Article Not Found")
         }
 
-        article.approved = req.body.approved === "approved"
+        article.approved = req.body.approved
         // console.log("before",article)
         // console.log("edition:",edition._id)
-        if (article.approved){
+        if (article.approved==="approved"){
             article["edition"] = edition._id
             article["editionNumber"] = edition.enumber
             await article.save()
             res.send(article)
-        } else {
+        } else if(article.approved === "rejected") {
             // console.log("rejected")
             console.log(article)
             await article.save()
-            res.send("article not approved")
+            res.send("article rejected")
+        } else {
+            res.send("article approved can only be 'pending' or 'approved' or 'rejected' ")
         }
         
         // console.log("after",article)
