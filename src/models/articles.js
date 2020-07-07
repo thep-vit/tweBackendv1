@@ -38,9 +38,15 @@ const articleSchema = mongoose.Schema({
         }
     ],
     approved:{
-        type: Boolean,
-        default: false,
-        trim:true
+        type: String,
+        default: "pending",
+        trim:true,
+        validate(value){
+            if (!(value==="pending" || value==="rejected" || value==="approved")){
+                throw error("invalid approved state")
+            }
+        }
+
     },
     edition: {
         type: mongoose.Schema.Types.ObjectId,

@@ -86,9 +86,10 @@ All Responses are in Status Codes and JSON
 
 1. Create Article - POST *api/articles*
    1. Request Body: JSON with atype,atitle,acontent,picture(picture is *type: file*) -- UPDATE: Picture Upload Disabled for Now
-   2. Auth Header (Here checks author also - only author can see their articles)
-   3. On success: 200, created article
-   4. On post Failiure: 500
+   2. approved is "pending" by default
+   3. Auth Header (Here checks author also - only author can see their articles)
+   4. On success: 200, created article
+   5. On post Failiure: 500
 
 2. Get Picture - GET */articles/:id/picture*
    1. Request Param: ID of the picture
