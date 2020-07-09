@@ -300,7 +300,7 @@ const upload = multer({
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     // console.log("Before Post Article")
     // console.log("req body",req.body)
-    // const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
+    const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
     
     const newArticle = new Article({
         ...req.body,
