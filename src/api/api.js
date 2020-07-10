@@ -300,7 +300,7 @@ const upload = multer({
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     // console.log("Before Post Article")
     // console.log("req body",req.body)
-    const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
+    // const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
     
     const newArticle = new Article({
         ...req.body,
@@ -327,6 +327,9 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
             case "facts":
                 user.contributions.myTotalFactsContribution +=1
                 break
+            case "movie":
+            user.contributions.myTotalMovieContribution +=1
+            break
         }
         await user.save()
         // res.locals.message = req.body.message
@@ -486,6 +489,9 @@ router.delete("/articles/:id", auth, async (req,res) => {
                 user.contributions.myTotalEditorialContribution -=1
                 break
             case "facts":
+                user.contributions.myTotalFactsContribution -=1
+                break
+            case "movie":
                 user.contributions.myTotalFactsContribution -=1
                 break
         }

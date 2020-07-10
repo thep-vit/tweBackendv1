@@ -83,6 +83,10 @@ resetPasswordExpires: {
     myTotalEditorialContribution: {
         type: Number,
         default:0
+    },
+    myTotalMovieContribution: {
+        type: Number,
+        default:0
     }
   }
 },{
