@@ -333,7 +333,7 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
         }
         await user.save()
         res.locals.message = req.body.message
-        res.redirect("/users/dashboard").json( { message: 'your message' });
+        // res.redirect("/users/dashboard").json( { message: 'your message' });
         res.status(201).send(newArticle)
     } catch (e) {
         console.log(e)
