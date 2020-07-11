@@ -299,13 +299,13 @@ const upload = multer({
 // create article
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     // console.log("Before Post Article")
-    // console.log("req body",req.body)
-    // const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
+    console.log("req body",req.body)
+    const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
     
     const newArticle = new Article({
         ...req.body,
         author: req.user._id,
-        // picture: buffer
+        picture: buffer
     })
     
     try {
@@ -313,7 +313,7 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
         
         const user = req.user
         user.contributions.myTotalContribution +=1
-        // console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
+        console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
         switch(newArticle.atype){
             case "satire":
                 user.contributions.myTotalSatireContribution +=1
@@ -332,8 +332,8 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
             break
         }
         await user.save()
-        // res.locals.message = req.body.message
-        // res.redirect("/users/dashboard").json( { message: 'your message' });
+        res.locals.message = req.body.message
+        res.redirect("/users/dashboard").json( { message: 'your message' });
         res.status(201).send(newArticle)
     } catch (e) {
         console.log(e)
@@ -554,7 +554,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // ------------------------------------------- Admin Routes -------------------------------------------
 
 // Get all existing articles
-router.get("/admin/allarticles",auth,adminAuth, async (req,res)=>{
+router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
         const allarticles = await Article.find({})
         if (!allarticles){
