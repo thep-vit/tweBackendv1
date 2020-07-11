@@ -327,6 +327,9 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
             case "facts":
                 user.contributions.myTotalFactsContribution +=1
                 break
+            case "movie":
+            user.contributions.myTotalMovieContribution +=1
+            break
         }
         await user.save()
         // res.locals.message = req.body.message
@@ -486,6 +489,9 @@ router.delete("/articles/:id", auth, async (req,res) => {
                 user.contributions.myTotalEditorialContribution -=1
                 break
             case "facts":
+                user.contributions.myTotalFactsContribution -=1
+                break
+            case "movie":
                 user.contributions.myTotalFactsContribution -=1
                 break
         }

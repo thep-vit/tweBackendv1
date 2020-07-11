@@ -2,11 +2,15 @@
 
 This repository is for development of TWE Web Application for The Hindu Education Plus Club. 
 
+Checkout the The Weekly Edge [here](https://www.thepcvit.com/tweapp)
+
+Login to as a THEPC Member [here](http://www.twe.thepcvit.com)
+
 ## Flow
 
 Progress tested with basic ui for now
 
-![PROGRESS](./images/backendProgress3.png)
+![PROGRESS](./images/backendProgress4.png)
 
 ## Progress
 
