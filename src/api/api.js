@@ -440,7 +440,7 @@ router.get("/articles/:id",auth, async (req,res) => {
 router.patch("/articles/:id", auth, async (req,res) => {
     const updateFieldsReq = Object.keys(req.body)
     const validFields = ["atype", "atitle","acontent"]
-    const isValidateFields = updateFieldsReq.every( (field) => validFields.includes(field))
+    const isValidateFields = updateFieldsReq.every((field) => validFields.includes(field))
 
     if (!isValidateFields){
         return res.status(400).send({ "error":"Invalid Update Requested"})
@@ -449,8 +449,8 @@ router.patch("/articles/:id", auth, async (req,res) => {
     try{
         const foundArticle = await Article.findOne({_id: req.params.id, author: req.user._id})
         updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
-
-        // const updatedTask = await Task.findByIdAndUpdate(req.params.id,req.body,{ new: true, runValidators: true})
+        
+        const updatedTask = await Task.findByIdAndUpdate(req.params.id,req.body,{ new: true, runValidators: true})
         if (!foundArticle){
             return res.status(404).send()
         }
@@ -458,8 +458,8 @@ router.patch("/articles/:id", auth, async (req,res) => {
         await foundArticle.save()
         res.send(foundArticle)
     } catch (e) {
-        console.log(e)
-        res.status(400).send(e)
+        // console.log(e)
+        res.status(400).send()
     }
 
 })
