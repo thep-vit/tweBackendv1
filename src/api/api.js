@@ -285,7 +285,7 @@ router.get("/users/me/contribution", auth, async (req,res)=>{
 
 const upload = multer({
     limits: {
-        fileSize: 1000000
+        fileSize: 5000000
     },
     fileFilter(req,file,cb) {
         if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
@@ -299,16 +299,18 @@ const upload = multer({
 // create article
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     // console.log("Before Post Article")
-    console.log("req body",req.body)
-    // const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
-    
-    const newArticle = new Article({
-        ...req.body,
-        author: req.user._id,
-        // picture: buffer
-    })
+    // console.log("req body",req.body)
+
     
     try {
+        const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
+    
+        const newArticle = new Article({
+            ...req.body,
+            author: req.user._id,
+            picture: buffer
+        })
+    
         await newArticle.save()
         
         const user = req.user
@@ -375,7 +377,8 @@ router.get("/articles/:id/picture", async (req,res) => {
         // console.log(user.avatar)
         res.send(article.picture)
     } catch (e) {
-        res.status(404).send()
+        console.log(e)
+        res.status(404).send(e)
     }
 })
 
