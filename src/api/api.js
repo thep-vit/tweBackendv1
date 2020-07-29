@@ -11,9 +11,14 @@ const Article = require("../models/articles")
 const Edition = require("../models/edition")
 
 
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'abhinavgorantla0613@gmail.com',
+      pass: 'kjvebhnpgijovmpt'
+    }
+  });
 
-// Dynamic Rendering with EJS Templating Engine 
-// GET requests that render the pages
 
 router.get("", (req,res)=> {
     // res.render("index",{
@@ -31,7 +36,7 @@ router.post("/users/signup", async (req,res) => {
     const newUser = new User(req.body)
     try{
         // console.log(req.body)
-        // console.log("Register Route")
+        // console.log("Register Route")       
         await newUser.save()
         const token = await newUser.generateToken()
 
@@ -149,14 +154,6 @@ router.delete("/users/me", auth, async (req,res) => {
 // @route POST api/users/recover
 // @desc Recover Password - Generates token and Sends password reset email
 // @access Public
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'abhinavgorantla0613@gmail.com',
-      pass: 'kjvebhnpgijovmpt'
-    }
-  });
-
 router.post('/users/recover',  async (req, res) => {
     try {
         foundUser = await User.findOne({email: req.body.email})
@@ -241,6 +238,14 @@ check('confirmPassword', 'Passwords do not match').custom((value, {req}) => (val
 
 });
 
+// @route   POST api/users/confirmed
+// @desc    Comfirms email for user.
+// @access Public
+router.post('/users/confirmed/:id', (req, res) => {
+    const id = req.params.id;
+    
+})
+
 // Contributions
 
 router.get("/users/me/contribution", auth, async (req,res)=>{
@@ -288,7 +293,7 @@ const upload = multer({
         fileSize: 5000000
     },
     fileFilter(req,file,cb) {
-        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|JPG|PNG|JPEG)$/)) {
             return cb(new Error("Upload Proper File"))
         }
         cb(undefined,true)
@@ -297,13 +302,9 @@ const upload = multer({
 
 // POST new article
 // create article
-router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
-    // console.log("Before Post Article")
-    // console.log("req body",req.body)
-
-    
+router.post("/articles",auth, upload.single("picture"), async(req,res)=>{    
     try {
-        const buffer = await sharp(req.file.buffer).resize({ height: 250, width: 250}).png().toBuffer()
+        const buffer = await sharp(req.file.buffer).png().toBuffer()
     
         const newArticle = new Article({
             ...req.body,
