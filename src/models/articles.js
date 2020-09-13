@@ -15,7 +15,7 @@ const articleSchema = mongoose.Schema({
     atitle:{
         type: String,
         required: true,
-        maxlength: 100,
+        maxlength: 140,
         trim: true
     },
     acontent:{
