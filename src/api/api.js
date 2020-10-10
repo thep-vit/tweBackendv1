@@ -559,7 +559,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
-        const allarticles = await Article.find({})
+        const allarticles = await Article.find({}).sort('-createdAt').limit(20)
         if (!allarticles){
             throw new Error()
         }
@@ -660,7 +660,7 @@ router.get("/edition/:number", async (req,res)=> {
 
 router.get("/edition", async (req,res)=> {
     try{
-        const editionList = await Edition.find({})
+        const editionList = await Edition.find({}).sort('-createdAt')
 
         if(!editionList){
             return res.status(404).send("No Editions Found")
