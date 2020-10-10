@@ -660,7 +660,7 @@ router.get("/edition/:number", async (req,res)=> {
 
 router.get("/edition", async (req,res)=> {
     try{
-        const editionList = await Edition.find({})
+        const editionList = await Edition.find({}).sort('-createdAt')
 
         if(!editionList){
             return res.status(404).send("No Editions Found")
