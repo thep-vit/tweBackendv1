@@ -31,22 +31,22 @@ router.get("", (req,res)=> {
 // ------------------------------------------- USER ROUTES ----------------------------------------------------
 
 // Create Account
-// router.post("/users/signup", async (req,res) => {
+router.post("/users/signup", async (req,res) => {
 
-//     const newUser = new User(req.body)
-//     try{
-//         // console.log(req.body)
-//         // console.log("Register Route")       
-//         await newUser.save()
-//         const token = await newUser.generateToken()
+    const newUser = new User(req.body)
+    try{
+        // console.log(req.body)
+        // console.log("Register Route")       
+        await newUser.save()
+        const token = await newUser.generateToken()
 
 
-//         res.status(201).send({newUser,token})
-//     } catch (e) {
-//         console.log(e)
-//         res.status(400).send(e)
-//     }
-// })
+        res.status(201).send({newUser,token})
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e)
+    }
+})
 
 // Login
 router.post("/users/login", async (req,res) => {
