@@ -635,10 +635,10 @@ router.get("/edition/:number", async (req,res)=> {
         var editionWithAuthorNames = edition.toObject()
         var allarticlesWithName = new Array()
         for (i=0;i<edition.articles.length;i++){
-            await edition.populate("articles[i]").execPopulate()
-            // currentAuthorID = edition.articles[i].author
-            // currentAuthorName = await User.findById(currentAuthorID).select("name")
-            // console.log(edition.articles.name)
+            // await edition.populate("articles[i]").execPopulate()
+            currentAuthorID = edition.articles[i].author
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            console.log(edition.articles.name)
             let currentArticle = edition.articles[i].toObject()
             currentArticle["authorName"] = currentAuthorName.name
             allarticlesWithName.push(currentArticle)
