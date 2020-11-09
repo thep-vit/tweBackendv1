@@ -634,7 +634,7 @@ router.get("/edition/:number", async (req,res)=> {
         }).execPopulate()
 
         console.log("After pop")
-        console.log(edition)
+        console.log(edition.articles)
 
         var editionWithAuthorNames = edition.toObject()
         var allarticlesWithName = new Array()
