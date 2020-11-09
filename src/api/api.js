@@ -638,7 +638,7 @@ router.get("/edition/:number", async (req,res)=> {
             currentAuthorID = edition.articles[i].author
             currentAuthorName = await User.findById(currentAuthorID).select("name")
             console.log(edition.articles.name)
-            let currentArticle = edition.articles[i].toObject()
+            let currentArticle = edition.articles[i].toObject().select("-picture")
             currentArticle["authorName"] = currentAuthorName.name
             allarticlesWithName.push(currentArticle)
         }
