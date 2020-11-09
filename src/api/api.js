@@ -559,7 +559,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
-        const allarticles = await Article.find({createdAt : { $gte : new Date(2020, 11, 01)} }).limit(20)
+        const allarticles = await Article.find({}).select("-picture").sort('-createdAt').limit(20)
         if (!allarticles){
             throw new Error()
         }
@@ -573,7 +573,7 @@ router.get("/admin/allarticles",auth, async (req,res)=>{
             allarticlesWithName.push(currentArticle)
         }
 
-        console.log(allarticles)
+        // console.log(allarticles)
         res.send(allarticlesWithName)
     } catch (e){
         console.log(e)
