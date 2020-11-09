@@ -573,7 +573,7 @@ router.get("/admin/allarticles",auth, async (req,res)=>{
             allarticlesWithName.push(currentArticle)
         }
 
-        // console.log(allarticles)
+        console.log(allarticles)
         res.send(allarticlesWithName)
     } catch (e){
         console.log(e)
