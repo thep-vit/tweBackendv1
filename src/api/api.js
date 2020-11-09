@@ -559,7 +559,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
-        const allarticles = await Article.find({})
+        const allarticles = await Article.find({}).select("-picture")
         if (!allarticles){
             throw new Error()
         }
