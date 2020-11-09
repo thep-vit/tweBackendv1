@@ -627,10 +627,13 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
 router.get("/edition/:number", async (req,res)=> {
     try{
         const edition = await Edition.findOne({enumber:req.params.number})
-        // console.log(edition)
+        console.log("Befire pop")
+        console.log(edition)
         await edition.populate({
             path: "articles"
         }).execPopulate()
+
+        console.log("After pop")
 
         var editionWithAuthorNames = edition.toObject()
         var allarticlesWithName = new Array()
@@ -645,7 +648,7 @@ router.get("/edition/:number", async (req,res)=> {
         }
 
         // console.log(allarticlesWithName)
-        console.log(edition)
+        // console.log(edition)
         editionWithAuthorNames.articles = allarticlesWithName
         
 
