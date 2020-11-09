@@ -559,7 +559,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
-        const allarticles = await Article.find({}).limit(20)
+        const allarticles = await Article.find({$gte : new Date(2020, 11, 01)}}).limit(20)
         if (!allarticles){
             throw new Error()
         }
