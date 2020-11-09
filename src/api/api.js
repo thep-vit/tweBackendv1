@@ -559,7 +559,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
-        const allarticles = await Article.find({createdAt: { $gte : new Date(2020, 10, 25)} }).select("-picture")
+        const allarticles = await Article.find({createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select("-picture")
         if (!allarticles){
             throw new Error()
         }
