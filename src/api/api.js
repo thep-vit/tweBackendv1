@@ -627,23 +627,32 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
 router.get("/edition/:number", async (req,res)=> {
     try{
         const edition = await Edition.findOne({enumber:req.params.number})
-        // console.log(edition)
+        console.log("Befire pop")
+        console.log(edition)
         await edition.populate({
             path: "articles"
         }).execPopulate()
 
+        console.log("After pop")
+        // await edition.articles.populate({path: "author"})
+        console.log(edition.articles)
+
         var editionWithAuthorNames = edition.toObject()
         var allarticlesWithName = new Array()
         for (i=0;i<edition.articles.length;i++){
-            currentAuthorID = edition.articles[i].author
-            currentAuthorName = await User.findById(currentAuthorID).select("name")
-            console.log(edition.articles.name)
-            let currentArticle = edition.articles[i].toObject()
-            currentArticle["authorName"] = currentAuthorName.name
-            allarticlesWithName.push(currentArticle)
+            tempArticle = edition.articles[i]
+            await tempArticle.populate({ path: "author" }).execPopulate()
+            edition.articles[i] = tempArticle
+            // currentAuthorID = edition.articles[i].author
+            // currentAuthorName = await User.findById(currentAuthorID).select("name")
+            
+            // let currentArticle = edition.articles[i].toObject()
+            // currentArticle["authorName"] = currentAuthorName.name
+            allarticlesWithName.push(tempArticle)
         }
 
         // console.log(allarticlesWithName)
+        // console.log(edition)
         editionWithAuthorNames.articles = allarticlesWithName
         
 
