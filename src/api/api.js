@@ -638,13 +638,13 @@ router.get("/edition/:number", async (req,res)=> {
             // await edition.populate("articles[i]").execPopulate()
             currentAuthorID = edition.articles[i].author
             currentAuthorName = await User.findById(currentAuthorID).select("name")
-            console.log(edition.articles.name)
+            // console.log(edition)
             let currentArticle = edition.articles[i].toObject()
             currentArticle["authorName"] = currentAuthorName.name
             allarticlesWithName.push(currentArticle)
         }
 
-        // console.log(allarticlesWithName)
+        console.log(allarticlesWithName)
         editionWithAuthorNames.articles = allarticlesWithName
         
 
