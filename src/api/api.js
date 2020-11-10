@@ -642,7 +642,7 @@ router.get("/edition/:number", async (req,res)=> {
         for (i=0;i<edition.articles.length;i++){
             tempArticle = edition.articles[i]
             await tempArticle.populate({ path: "author" }).execPopulate()
-            // edition.articles[i] = tempArticle
+            edition.articles[i] = tempArticle
             // currentAuthorID = edition.articles[i].author
             // currentAuthorName = await User.findById(currentAuthorID).select("name")
             
