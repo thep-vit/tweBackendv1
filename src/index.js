@@ -4,6 +4,7 @@ const articleRouter = require("./routes/articles")
 const indexRouter = require("./routes/index")
 const resetRouter = require("./routes/reset");
 const apiRouter = require("./api/api")
+require('dotenv').config()
 
 
 const express = require("express")

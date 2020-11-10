@@ -3,7 +3,8 @@ const router = express.Router();
 const {check } = require('express-validator');
 // Load User model
 const User = require('../models/users');
-// const { render } = require('ejs');
+
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 
