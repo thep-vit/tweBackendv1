@@ -34,9 +34,7 @@ router.get("", (req,res)=> {
 router.post("/users/signup", async (req,res) => {
 
     const newUser = new User(req.body)
-    try{
-        // console.log(req.body)
-        // console.log("Register Route")       
+    try{   
         await newUser.save()
         const token = await newUser.generateToken()
 
@@ -52,9 +50,8 @@ router.post("/users/signup", async (req,res) => {
 router.post("/users/login", async (req,res) => {
     try{
         const userFound = await User.findByCredentials(req.body.email, req.body.password)
-        // console.log(userFound)
         const token = await userFound.generateToken()
-        // console.log("token")
+        
         res.send({userFound,token})
 
     } catch (e) {
@@ -78,7 +75,6 @@ router.get("/users/me",auth,async (req,res)=> {
 // Logout User
 router.post("/users/logout", auth, async (req,res)=>{
     try {
-        // console.log(req.user)
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token!==req.token
         })
@@ -133,13 +129,13 @@ router.patch("/users/me",auth, async (req,res) => {
     try {
         updateFieldsReq.forEach((updateField) => req.user[updateField] = req.body[updateField])
         await req.user.save()
-        // const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new:true, runValidators: true })
         res.send(req.user)
     } catch (e) {
         send.status(400).send(e)
     }
 })
 
+//Deletes user
 router.delete("/users/me", auth, async (req,res) => {
     try {
         await req.user.remove()
@@ -198,7 +194,6 @@ router.post('/users/recover',  async (req, res) => {
 // @route POST api/users/recover/:token
 // @desc    Resets password from the link sent to user email
 // @access Public
-
 router.post('/users/recover/:token', check('password').not().isEmpty().isLength({min: 6}).withMessage('Must be at least 6 chars long'),
 check('confirmPassword', 'Passwords do not match').custom((value, {req}) => (value === req.body.password)), async (req, res) =>{
     
@@ -247,37 +242,10 @@ router.post('/users/confirmed/:id', (req, res) => {
 })
 
 // Contributions
-
 router.get("/users/me/contribution", auth, async (req,res)=>{
     try{
-        // const myTotalContributionCount = await Article.countDocuments({ author:req.user._id})
-        // const mysatireContributionCount = await Article.countDocuments({ author:req.user._id, atype:"satire"})
-        // const myNewsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"news"})
-        // const myFactsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"facts"})
-        // const myEditorialContributionCount = await Article.countDocuments({ author:req.user._id, atype:"editorial"})
-
-        // const totalContributionCount = await Article.countDocuments({})
-        // const totalSatireContributions = await Article.countDocuments({ atype:"editorial"})
-        // const totalNewsContributionCount = await Article.countDocuments({ atype:"news"})
-        // const totalFactsContributionCount = await Article.countDocuments({ atype:"facts"})
-        // const totaleEitorialContributionCount = await Article.countDocuments({ atype:"editorial"})
-
         const contributionList = await User.find({}).select("contributions name")
-        // console.log(allNames)
         res.send(contributionList)
-
-        // res.send({
-        //     totalContributionCount,
-        //     totalSatireContributions,
-        //     totalNewsContributionCount,
-        //     totalFactsContributionCount,
-        //     totaleEitorialContributionCount,
-        //     myTotalContributionCount,
-        //     mysatireContributionCount,
-        //     myNewsContributionCount,
-        //     myFactsContributionCount,
-        //     myEditorialContributionCount
-        // })
     } catch (e){
         console.log(e)
         res.status(404).send(e)
@@ -285,9 +253,8 @@ router.get("/users/me/contribution", auth, async (req,res)=>{
 })
 
 
+
 // ------------------------------------------- ARTICLE ROUTES ----------------------------------------------------
-
-
 const upload = multer({
     limits: {
         fileSize: 5000000
@@ -336,7 +303,6 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
         }
         await user.save()
         res.locals.message = req.body.message
-        // res.redirect("/users/dashboard").json( { message: 'your message' });
         res.status(201).send(newArticle)
     } catch (e) {
         console.log(e)
@@ -375,7 +341,6 @@ router.get("/articles/:id/picture", async (req,res) => {
         }
 
         res.set("Content-Type","image/png")
-        // console.log(user.avatar)
         res.send(article.picture)
     } catch (e) {
         console.log(e)
@@ -387,11 +352,8 @@ router.get("/articles/:id/picture", async (req,res) => {
 
 // GET /tasks?limit=2&skip=2
 // GET /tasks?sortBy=createdAt:asc
-
 // GET all existing articles or query in the above format to sort results according to attributes.
 router.get("/articles/list", auth, async (req,res) => {
-
-
     const sort = {}
 
     if (req.query.sortBy) {
@@ -400,8 +362,6 @@ router.get("/articles/list", auth, async (req,res) => {
     }
 
     try {
-
-        // const allTasks = await Task.find({owner: req.user._id}) (alternate to the following line)
         await req.user.populate({
             path : "articles",
             options: {
@@ -424,12 +384,11 @@ router.get("/articles/list", auth, async (req,res) => {
 
 
 // GET articles according to ID
-router.get("/articles/:id",auth, async (req,res) => {
+router.get("/articles/:id", async (req,res) => {
     const _id = req.params.id
 
     try {
-        // const foundTask = await Task.findById(_id)
-        const foundArticle = await Article.findOne( { _id,author:req.user._id } )
+        const foundArticle = await Article.findOne( { _id } )
         if (!foundArticle){
             return res.status(404).send()
         }
@@ -471,7 +430,6 @@ router.patch("/articles/:id", auth, async (req,res) => {
 router.delete("/articles/:id", auth, async (req,res) => {
     try {
         const deletedArticle = await Article.findOneAndDelete({_id:req.params.id, author: req.user._id})
-        // console.log(deletedArticle)
         
         if (!deletedArticle){
             return res.status(404).send()
@@ -480,7 +438,6 @@ router.delete("/articles/:id", auth, async (req,res) => {
         // Update User Contribution
         const user = await User.findOne({_id:deletedArticle.author})
         user.contributions.myTotalContribution -=1
-        // console.log("This prints before deleting, after user is updated:",user.contributions.myTotalContribution)
         switch(deletedArticle.atype){
             case "satire":
                 user.contributions.myTotalSatireContribution -=1
@@ -508,44 +465,37 @@ router.delete("/articles/:id", auth, async (req,res) => {
 })
 
 // select edition for article
-
 router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
     try {
 
         const edition = await Edition.findOne({enumber:req.body.edition})
-        // console.log(edition)
         if (!edition){
             return res.status(404).send("Edition Not Found")
         }
 
         var article = await Article.findOne({_id:req.params.id})
-        // console.log(article)
+        
         if(!article){
             return res.status(404).send("Article Not Found")
         }
         article = article
         article.approved = req.body.approved
-        // console.log("before",article)
-        // console.log("edition:",edition._id)
+        
         if (article.approved==="approved"){
             article["edition"] = edition._id
             article["editionNumber"] = edition.enumber
             await article.save()
             res.send(article)
         } else if(article.approved === "rejected") {
-            // console.log("rejected")
+            
             article.edition = undefined
             article.editionNumber = undefined
-            // console.log(article)
+            
             await article.save()
             res.send("article rejected")
         } else {
             res.send("article approved can only be 'pending' or 'approved' or 'rejected' ")
-        }
-        
-        // console.log("after",article)
-
-        
+        }   
 
     } catch (e){
         console.log(e)
@@ -572,10 +522,6 @@ router.get("/admin/allarticles",auth, async (req,res)=>{
             currentArticle["authorName"] = currentAuthorName.name
             allarticlesWithName.push(currentArticle)
         }
-
-        // console.log(allarticles)
-        
-        // await allarticles.populate("author").execPopulate()
         res.send(allarticlesWithName)
     } catch (e){
         console.log(e)
@@ -583,10 +529,7 @@ router.get("/admin/allarticles",auth, async (req,res)=>{
     }
 })
 
-// 
-
 // Dashboard Auth for Client
-
 router.post("/check/auth", async (req,res)=>{
     try{
         const token = req.header("Authorization").replace("Bearer ","") 
@@ -607,9 +550,6 @@ router.post("/check/auth", async (req,res)=>{
     }
 })
 
-// ------------------------------------------- Admin Routes -------------------------------------------
-
-
 // create edition
 router.post("/edition/create",auth,adminAuth, async (req,res)=> {
     const newEdition = new Edition(req.body)
@@ -626,12 +566,10 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
 // get edition details by number
 router.get("/edition/:number", async (req,res)=> {
     try{
-        const edition = await Edition.findOne({enumber:req.params.number})
+        const edition = await Edition.findOne({enumber:req.params.number});
         console.log("Befire pop")
         console.log(edition)
-        await edition.populate({
-            path: "articles"
-        }).execPopulate()
+        await edition.populate("articles", "atitle acontent atype author edition editionNumber").execPopulate()
 
         console.log("After pop")
         // await edition.articles.populate({path: "author"})
@@ -641,25 +579,16 @@ router.get("/edition/:number", async (req,res)=> {
         var allarticlesWithName = new Array()
         for (i=0;i<edition.articles.length;i++){
             tempArticle = edition.articles[i]
-            await tempArticle.populate({ path: "author" }).execPopulate()
+            await tempArticle.populate("author", "name email").execPopulate()
             edition.articles[i] = tempArticle
-            // currentAuthorID = edition.articles[i].author
-            // currentAuthorName = await User.findById(currentAuthorID).select("name")
-            
-            // let currentArticle = edition.articles[i].toObject()
-            // currentArticle["authorName"] = currentAuthorName.name
             allarticlesWithName.push(tempArticle)
         }
-
-        // console.log(allarticlesWithName)
-        // console.log(edition)
         editionWithAuthorNames.articles = allarticlesWithName
         
 
         if (!edition){
             return res.status(404).send()
         }
-        // res.send(edition.toObject({virtuals: true}))
         res.send(editionWithAuthorNames)
     } catch(e){
         console.log(e)
@@ -667,8 +596,8 @@ router.get("/edition/:number", async (req,res)=> {
     }
 })
 
-// all editions list without content
 
+// all editions list without content
 router.get("/edition", async (req,res)=> {
     try{
         const editionList = await Edition.find({}).sort('-createdAt')
@@ -687,7 +616,6 @@ router.get("/edition", async (req,res)=> {
 
 
 // POST HOV link
-
 router.patch("/edition/adminhovpost/:number",auth,adminAuth, async(req,res)=> {
     try{
         const redundantEditionsCheck = await Edition.countDocuments({enumber:req.params.number})
@@ -722,8 +650,6 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
     try{
         const edition = await Edition.findOne({_id: req.params.id})
         updateFieldsReq.forEach((updateField) => edition[updateField] = req.body[updateField])
-
-        // const updatedTask = await Task.findByIdAndUpdate(req.params.id,req.body,{ new: true, runValidators: true})
         if (!edition){
             return res.status(404).send()
         }
