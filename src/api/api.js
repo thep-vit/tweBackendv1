@@ -447,6 +447,7 @@ router.patch("/articles/:id", auth, async (req,res) => {
     try{
         const foundArticle = await Article.findOne({_id: req.params.id, author: req.user._id})
         updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
+        console.log(req.body)
         
         article.approved = req.body.approved
 
