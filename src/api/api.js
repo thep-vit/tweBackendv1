@@ -455,7 +455,7 @@ router.patch("/articles/:id", auth, async (req,res) => {
         await foundArticle.save()
         res.send(foundArticle)
     } catch (e) {
-        // console.log(e)
+        console.log(e)
         res.status(400).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
     }
 
@@ -506,11 +506,11 @@ router.delete("/articles/:id", auth, async (req,res) => {
 router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
     try {
 
-        const edition = await Edition.findOne({enumber:req.body.edition})
-        // console.log(edition)
-        if (!edition){
-            return res.status(404).send({"message":"Edition Not Found"})
-        }
+        // const edition = await Edition.findOne({enumber:req.body.edition})
+        // // console.log(edition)
+        // if (!edition){
+        //     return res.status(404).send({"message":"Edition Not Found"})
+        // }
 
         var article = await Article.findOne({_id:req.params.id})
         // console.log(article)
@@ -519,27 +519,29 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
         }
         article = article
         article.approved = req.body.approved
-        // console.log("before",article)
-        // console.log("edition:",edition._id)
-        if (article.approved==="approved"){
-            article["edition"] = edition._id
-            article["editionNumber"] = edition.enumber
-            await article.save()
-            res.send(article)
-        } else if(article.approved === "rejected") {
-            // console.log("rejected")
-            article.edition = undefined
-            article.editionNumber = undefined
-            // console.log(article)
-            await article.save()
-            res.send("article rejected")
-        } else {
-            res.send({"message":"Article approved can only be 'pending' or 'approved' or 'rejected' "})
-        }
+        // // console.log("before",article)
+        // // console.log("edition:",edition._id)
+        // if (article.approved==="approved"){
+        //     article["edition"] = edition._id
+        //     article["editionNumber"] = edition.enumber
+        //     await article.save()
+        //     res.send(article)
+        // } else if(article.approved === "rejected") {
+        //     // console.log("rejected")
+        //     article.edition = undefined
+        //     article.editionNumber = undefined
+        //     // console.log(article)
+        //     await article.save()
+        //     res.send("article rejected")
+        // } else {
+        //     res.send({"message":"Article approved can only be 'pending' or 'approved' or 'rejected' "})
+        // }
         
         // console.log("after",article)
 
+        await article.save()
         
+        res.send(article)
 
     } catch (e){
         console.log(e)
