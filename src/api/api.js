@@ -569,7 +569,7 @@ router.get("/edition/:number", async (req,res)=> {
         const edition = await Edition.findOne({enumber:req.params.number});
         console.log("Befire pop")
         console.log(edition)
-        await edition.populate("articles", "atitle acontent atype author edition editionNumber").execPopulate()
+        await edition.populate("articles", "atitle acontent atype author").execPopulate()
 
         console.log("After pop")
         // await edition.articles.populate({path: "author"})
@@ -579,7 +579,7 @@ router.get("/edition/:number", async (req,res)=> {
         var allarticlesWithName = new Array()
         for (i=0;i<edition.articles.length;i++){
             tempArticle = edition.articles[i]
-            await tempArticle.populate("author", "name email").execPopulate()
+            await tempArticle.populate("author", "name").execPopulate()
             edition.articles[i] = tempArticle
             allarticlesWithName.push(tempArticle)
         }
