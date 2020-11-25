@@ -437,7 +437,7 @@ router.get("/articles/:id",auth, async (req,res) => {
 // PATCH update an article content in the database
 router.patch("/articles/:id", auth, async (req,res) => {
     const updateFieldsReq = Object.keys(req.body)
-    const validFields = ["atype", "atitle","acontent"]
+    const validFields = ["atype", "atitle","acontent", "approved"]
     const isValidateFields = updateFieldsReq.every((field) => validFields.includes(field))
 
     if (!isValidateFields){
@@ -449,7 +449,7 @@ router.patch("/articles/:id", auth, async (req,res) => {
         updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
         
         article.approved = req.body.approved
-        
+
         if (!foundArticle){
             return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
         }
