@@ -447,7 +447,9 @@ router.patch("/articles/:id", auth, async (req,res) => {
     try{
         const foundArticle = await Article.findOne({_id: req.params.id, author: req.user._id})
         updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
-    
+        
+        article.approved = req.body.approved
+        
         if (!foundArticle){
             return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
         }
@@ -519,6 +521,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
         }
         article = article
         article.approved = req.body.approved
+        console.log(req.body)
         // // console.log("before",article)
         // // console.log("edition:",edition._id)
         // if (article.approved==="approved"){
@@ -539,7 +542,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
         
         // console.log("after",article)
 
-        await article.save()
+        // await article.save()
         
         res.send(article)
 
