@@ -449,7 +449,7 @@ router.patch("/articles/:id", auth, async (req,res) => {
         updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
         console.log(req.body)
         
-        article.approved = req.body.approved
+        foundArticle.approved = req.body.approved
 
         if (!foundArticle){
             return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
