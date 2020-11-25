@@ -9,6 +9,7 @@ const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
 const Article = require("../models/articles")
 const Edition = require("../models/edition")
+const { callbackPromise } = require("nodemailer/lib/shared")
 
 
 var transporter = nodemailer.createTransport({
@@ -53,7 +54,7 @@ router.post("/users/login", async (req,res) => {
 
     } catch (e) {
         console.log(e)
-        throw new Error(res.status(400).send({"errorMessage":"Invalid user credentials."}))
+        callback(new Error(res.status(400).send({"errorMessage":"Invalid user credentials."})))
         res.status(400).send({"errorMessage":"Invalid user credentials."})
     }
 })
