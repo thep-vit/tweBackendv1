@@ -146,6 +146,47 @@ router.delete("/users/me", auth, async (req,res) => {
     }
 })
 
+router.post('/user/securityQuestion/add', auth, async (req, res) => {
+    const { securityQuestion, securityAnswer } = req.body;
+
+    const userID = req.user._id;
+    try {
+        const foundUser = await User.findOne({_id: userID})
+
+        if(!foundUser) {
+            res.status(404).send({"message":`Oops! User with ID ${userID} not found.`})
+        }
+
+        foundUser.securityQuestion = securityQuestion
+        foundUser.securityAnswer = await bcrypt.hash(securityAnswer, 8)
+
+        res.status(200).send({"message": `Security question ${securityQuestion} for user ${foundUser.name} was successfully created. You can use it to reset your password.`})
+    } catch (error) {
+        throw  new Error(error.message)
+    }
+})
+
+router.post('/user/securityQuestion/verify', auth, async (req, res) => {
+    const foundUser = await User.findOne({_id: req.user._id})
+    const { securityAnswer } = req.body
+
+    if(!foundUser){ 
+        res.status(404).send({"message": "User not found."})
+    }
+
+    const isCorrect = await bcrypt.compare(securityAnswer, foundUser.securityAnswer)
+
+    if(isCorrect) {
+        foundUser.generatePasswordReset();
+        await foundUser.save()
+
+        resetLink = "http://" + req.headers.host + "/api/users/recover/" + foundUser.resetPasswordToken
+
+        res.send(200).send({"resetLink": `${resetLink}`})
+    }else{
+        res.status(500).send({"message":`Security answer for the user ${foundUser.name} is not correct. Please try again.`})
+    }
+})
 
 // @route POST api/users/recover
 // @desc Recover Password - Generates token and Sends password reset email
@@ -552,9 +593,21 @@ router.post("/check/auth", async (req,res)=>{
 
 // create edition
 router.post("/edition/create",auth,adminAuth, async (req,res)=> {
-    const newEdition = new Edition(req.body)
     try{
+
+        const { ename, enumber, edesc, hov, articles } = req.body
+        const newEdition = new Edition({ename, enumber, edesc, hov})
+
         await newEdition.save()
+
+        for (let index = 0; index < articles.length; index++) {
+            const article = await Article.findOne({ _id: articles[index]})
+            article.editionNumber = enumber
+            article.edition = newEdition._id
+            await article.save()
+        }
+
+        console.log(newEdition._id)
         res.status(201).send(newEdition)
     } catch (e){
         console.log(e)
@@ -662,7 +715,5 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
     }
 
 })
-
-
 
 module.exports = router

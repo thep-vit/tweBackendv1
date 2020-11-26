@@ -64,6 +64,14 @@ resetPasswordExpires: {
       default: false
   },
 
+  securityQuestion: {
+      type: String
+  },
+
+  securityAnswer: {
+    type: String
+  },
+
   contributions:{
     myTotalContribution: {
         type: Number,
