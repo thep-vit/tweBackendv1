@@ -146,6 +146,54 @@ router.delete("/users/me", auth, async (req,res) => {
     }
 })
 
+router.post('/user/securityQuestion/add', auth, async (req, res) => {
+    const { securityQuestion, securityAnswer } = req.body;
+
+    const userID = req.user._id;
+    try {
+        const foundUser = await User.findOne({_id: userID})
+
+        if(!foundUser) {
+            res.status(404).send({"message":`Oops! User with ID ${userID} not found.`})
+        }
+
+        foundUser.securityQuestion = securityQuestion
+        foundUser.securityAnswer = await bcrypt.hash(securityAnswer, 8)
+
+        res.status(200).send({"message": `Security question ${securityQuestion} for user ${foundUser.name} was successfully created. You can use it to reset your password.`})
+    } catch (error) {
+        throw  new Error(error.message)
+    }
+})
+
+router.post('/user/securityQuestion/verify', async (req, res) => {
+    const foundUser = await User.findOne({email: req.body.email})
+    const { securityAnswer } = req.body
+
+    if(!foundUser){ 
+        res.status(404).send({"message": "User not found."})
+    }
+
+    const isCorrect = await bcrypt.compare(securityAnswer, foundUser.securityAnswer)
+
+    if(isCorrect) {
+        foundUser.generatePasswordReset();
+        await foundUser.save()
+
+        resetLink = "http://" + req.headers.host + "/api/users/recover/" + foundUser.resetPasswordToken
+
+        res.send(200).send({"resetLink": `${resetLink}`})
+    }else{
+        res.status(500).send({"message":`Security answer for the user ${foundUser.name} is not correct. Please try again.`})
+    }
+})
+
+router.post('/user/securityQuestion/request', async (req, res) => {
+    const foundUser = await User.findOne({email: req.body.email})
+
+    res.status(200).send({"securityQuestion": `${foundUser.securityQuestion}`})
+})
+
 
 // @route POST api/users/recover
 // @desc Recover Password - Generates token and Sends password reset email
