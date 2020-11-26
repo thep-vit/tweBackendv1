@@ -447,18 +447,33 @@ router.patch("/articles/:id", auth, async (req,res) => {
     }
 
     try{
-        const foundArticle = await Article.findOne({_id: req.params.id, author: req.user._id})
-        updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
-        console.log(req.body)
-        
-        foundArticle.approved = req.body.approved
+        if(req.user.isAdmin){
+            const foundArticle = await Article.findOne({_id: req.params.id})
+            updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
+            console.log(req.body)
+            
+            foundArticle.approved = req.body.approved
 
-        if (!foundArticle){
-            return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
-        }
-                
-        await foundArticle.save()
-        res.send(foundArticle)
+            if (!foundArticle){
+                return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
+            }
+                    
+            await foundArticle.save()
+            res.send(foundArticle)
+        }else{
+            const foundArticle = await Article.findOne({_id: req.params.id, author: req.user._id})
+            updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
+            console.log(req.body)
+            
+            foundArticle.approved = req.body.approved
+
+            if (!foundArticle){
+                return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
+            }
+                    
+            await foundArticle.save()
+            res.send(foundArticle)
+        }   
     } catch (e) {
         console.log(e)
         res.status(400).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
