@@ -188,7 +188,7 @@ router.post('/user/securityQuestion/verify', async (req, res) => {
     }
 })
 
-router.post('/user/securityQuestion/request', async, (req, res) => {
+router.post('/user/securityQuestion/request', async (req, res) => {
     const foundUser = await User.findOne({email: req.body.email})
 
     res.status(200).send({"securityQuestion": `${foundUser.securityQuestion}`})
