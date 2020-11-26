@@ -166,8 +166,8 @@ router.post('/user/securityQuestion/add', auth, async (req, res) => {
     }
 })
 
-router.post('/user/securityQuestion/verify', auth, async (req, res) => {
-    const foundUser = await User.findOne({_id: req.user._id})
+router.post('/user/securityQuestion/verify', async (req, res) => {
+    const foundUser = await User.findOne({email: req.body.email})
     const { securityAnswer } = req.body
 
     if(!foundUser){ 
