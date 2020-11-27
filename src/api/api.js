@@ -5,10 +5,12 @@ const multer = require("multer")
 const jwt = require("jsonwebtoken")
 const {check } = require('express-validator')
 const nodemailer = require('nodemailer')
+
 const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
 const Article = require("../models/articles")
 const Edition = require("../models/edition")
+const Message = require("../models/message")
 
 
 var transporter = nodemailer.createTransport({
@@ -720,6 +722,32 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
         res.status(400).send(e)
     }
 
+})
+
+router.post('/message/post', auth, adminAuth, async (req, res) => {
+    const { message } = req.body
+
+    const user = req.user
+
+    const createdBy = {
+        _id: user._id,
+        name: user.name
+    }
+
+    const newMessage = new Message({ createdAt, message });
+
+    await newMessage.save()
+
+    res.send(200).send(newMessage)
+})
+
+router.get('/messages/allMessages', auth, (req, res) => {
+    const allMessages = await Message.find()
+
+    if(!allMessages){
+        res.send(404).send({"message":"Oops! No messages found!"})
+    }
+    res.send(200).send(allMessages)
 })
 
 module.exports = router
