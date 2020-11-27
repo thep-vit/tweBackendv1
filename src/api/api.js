@@ -449,6 +449,17 @@ router.get("/articles/:id", async (req,res) => {
     }
 })
 
+//GET approved articles
+router.get('/articles/getApproved', auth, async (req, res) => {
+    const approvedArticles = await Article.find({approved: "approved"});
+
+    if(!approvedArticles){
+        res.status(404).send({"message":"Sorry, no approved articles could be found at this moment.")
+    }
+
+    res.status(200).send(approvedArticles)
+})
+
 // PATCH update an article content in the database
 router.patch("/articles/:id", auth, async (req,res) => {
     const updateFieldsReq = Object.keys(req.body)
