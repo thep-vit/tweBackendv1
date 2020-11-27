@@ -110,6 +110,12 @@ userSchema.virtual( "articles", {
     foreignField : "author"
 })
 
+userSchema.virtual( "articles", {  
+    ref: "Article",
+    localField: "_id",
+    foreignField : "collabAuthor"
+})
+
 
 //find and login users
 

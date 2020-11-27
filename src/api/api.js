@@ -322,10 +322,17 @@ const upload = multer({
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{    
     try {
         const buffer = await sharp(req.file.buffer).png().toBuffer()
+
+        const { collabAuth } = req.body;
+
+        if(collabAuth){
+            const collabAuthObj = await User.findOne({email: collabAuth });
+        }
     
         const newArticle = new Article({
             ...req.body,
             author: req.user._id,
+            collabAuthor: collabAuthObj._id,
             picture: buffer
         })
     
@@ -454,7 +461,7 @@ router.get('/articles/getApproved', auth, async (req, res) => {
     const approvedArticles = await Article.find({approved: "approved"});
 
     if(!approvedArticles){
-        res.status(404).send({"message":"Sorry, no approved articles could be found at this moment.")
+        res.status(404).send({"message":"Sorry, no approved articles could be found at this moment."})
     }
 
     res.status(200).send(approvedArticles)
