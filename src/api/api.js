@@ -5,6 +5,7 @@ const multer = require("multer")
 const jwt = require("jsonwebtoken")
 const {check } = require('express-validator')
 const nodemailer = require('nodemailer')
+const bcrypt = require('bcryptjs')
 
 const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
@@ -741,7 +742,7 @@ router.post('/message/post', auth, adminAuth, async (req, res) => {
     res.send(200).send(newMessage)
 })
 
-router.get('/messages/allMessages', auth, (req, res) => {
+router.get('/messages/allMessages', auth, async (req, res) => {
     const allMessages = await Message.find()
 
     if(!allMessages){
@@ -749,5 +750,7 @@ router.get('/messages/allMessages', auth, (req, res) => {
     }
     res.send(200).send(allMessages)
 })
+
+
 
 module.exports = router
