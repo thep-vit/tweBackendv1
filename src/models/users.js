@@ -64,6 +64,14 @@ resetPasswordExpires: {
       default: false
   },
 
+  securityQuestion: {
+      type: String
+  },
+
+  securityAnswer: {
+    type: String
+  },
+
   contributions:{
     myTotalContribution: {
         type: Number,
@@ -100,6 +108,12 @@ userSchema.virtual( "articles", {
     ref: "Article",
     localField: "_id",
     foreignField : "author"
+})
+
+userSchema.virtual( "articles", {  
+    ref: "Article",
+    localField: "_id",
+    foreignField : "collabAuthor"
 })
 
 
