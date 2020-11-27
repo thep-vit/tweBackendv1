@@ -11,8 +11,6 @@ const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
 const Article = require("../models/articles")
 const Edition = require("../models/edition")
-const { callbackPromise } = require("nodemailer/lib/shared")
-const bcrypt = require("bcryptjs")
 const Message = require("../models/message")
 
 
