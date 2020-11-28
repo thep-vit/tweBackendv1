@@ -38,6 +38,7 @@ router.get("", (req,res)=> {
 router.post("/users/signup", async (req,res) => {
 
     const newUser = new User(req.body)
+
     try{   
         await newUser.save()
         const token = await newUser.generateToken()
@@ -322,84 +323,42 @@ const upload = multer({
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{    
     try {
         const buffer = await sharp(req.file.buffer).png().toBuffer()
-
-        const { collabEmail } = req.body;
-
-        if(collabEmail){
-            const collabAuthObj = await User.findOne({email: collabEmail });
-            const collabAuth = ObjectID(collabAuthObj._id)
-            
-            const newArticle = new Article({
-                ...req.body,
-                author: req.user._id,
-                collabAuth,
-                picture: buffer
-            })
-
-            console.log(collabAuthObj._id)
-
-            const user = req.user
-            user.contributions.myTotalContribution +=1
-            console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
-            switch(newArticle.atype){
-                case "satire":
-                    user.contributions.myTotalSatireContribution +=1
-                    break
-                case "news":
-                    user.contributions.myTotalNewsContribution +=1
-                    break
-                case "editorial":
-                    user.contributions.myTotalEditorialContribution +=1
-                    break
-                case "facts":
-                    user.contributions.myTotalFactsContribution +=1
-                    break
-                case "movie":
-                user.contributions.myTotalMovieContribution +=1
-                break
-            }
-            await user.save()
-
-            await newArticle.save()
-            res.locals.message = req.body.message
-            res.status(201).send(newArticle)
-        }else{
-            const newArticle = new Article({
-                ...req.body,
-                author: req.user._id,
-                picture: buffer
-            })
-
-            const user = req.user
-            user.contributions.myTotalContribution +=1
-            console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
-            switch(newArticle.atype){
-                case "satire":
-                    user.contributions.myTotalSatireContribution +=1
-                    break
-                case "news":
-                    user.contributions.myTotalNewsContribution +=1
-                    break
-                case "editorial":
-                    user.contributions.myTotalEditorialContribution +=1
-                    break
-                case "facts":
-                    user.contributions.myTotalFactsContribution +=1
-                    break
-                case "movie":
-                user.contributions.myTotalMovieContribution +=1
-                break
-            }
-            await user.save()
-
-            await newArticle.save()
+    
+        const newArticle = new Article({
+            ...req.body,
+            author: req.user._id,
+            picture: buffer
+        })
+    
+        await newArticle.save()
         
-            res.locals.message = req.body.message
-            res.status(201).send(newArticle)
+        const user = req.user
+        user.contributions.myTotalContribution +=1
+        console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
+        switch(newArticle.atype){
+            case "satire":
+                user.contributions.myTotalSatireContribution +=1
+                break
+            case "news":
+                user.contributions.myTotalNewsContribution +=1
+                break
+            case "editorial":
+                user.contributions.myTotalEditorialContribution +=1
+                break
+            case "facts":
+                user.contributions.myTotalFactsContribution +=1
+                break
+            case "movie":
+            user.contributions.myTotalMovieContribution +=1
+            break
         }
+        await user.save()
+        res.locals.message = req.body.message
+        // res.redirect("/users/dashboard").json( { message: 'your message' });
+        res.status(201).send(newArticle)
     } catch (e) {
         console.log(e)
-        res.status(400).send({"message":"Oops! Article submission failed! Please check if you have filled in all fields before trying again."})
+        res.status(400).send(e)
     }
     
 })
@@ -654,7 +613,8 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
-        const allarticles = await Article.find({createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select("-picture")
+
+        const allarticles = await Article.find({}).sort('-createdAt').limit(20)
         if (!allarticles){
             throw new Error()
         }
