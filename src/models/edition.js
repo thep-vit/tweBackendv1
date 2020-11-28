@@ -3,28 +3,28 @@ const mongoose = require("mongoose")
 const editionSchema = mongoose.Schema({
     ename:{
         type:String,
-        required: true,
-        trim: true
+        // required: true,
+        // trim: true
     },
     enumber: {
         type: Number,
-        required:true,
-        unique:true,
-        validate(value){
-            if (value<0){
-                throw new Error("Edition Number cannot be negetive")
-            }
-        }
+        // required:true,
+        // unique:true,
+        // validate(value){
+        //     if (value<0){
+        //         throw new Error("Edition Number cannot be negetive")
+        //     }
+        // }
     },
     edesc: {
         type: String,
-        required: true,
-        trim:true,
-        validate(value){
-            if (value.length>5000){
-                throw new Error("Edition description cannot be more than 5000 chars")
-            }
-        }
+        // required: true,
+        // trim:true,
+        // validate(value){
+        //     if (value.length>5000){
+        //         throw new Error("Edition description cannot be more than 5000 chars")
+        //     }
+        // }
     },
     hov: [{
         // type: mongoose.SchemaTypes.URL

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require("validator")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
+require('dotenv').config();
 
 const userSchema = mongoose.Schema({
   name: {
@@ -63,6 +64,14 @@ resetPasswordExpires: {
       default: false
   },
 
+  securityQuestion: {
+      type: String
+  },
+
+  securityAnswer: {
+    type: String
+  },
+
   contributions:{
     myTotalContribution: {
         type: Number,
@@ -100,6 +109,12 @@ userSchema.virtual( "articles", {
     localField: "_id",
     foreignField : "author"
 })
+
+// userSchema.virtual( "articles", {  
+//     ref: "Article",
+//     localField: "_id",
+//     foreignField : "collabAuthor"
+// })
 
 
 //find and login users

@@ -5,10 +5,14 @@ const multer = require("multer")
 const jwt = require("jsonwebtoken")
 const {check } = require('express-validator')
 const nodemailer = require('nodemailer')
+const bcrypt = require('bcryptjs')
+const { ObjectID } = require('mongodb')
+
 const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
 const Article = require("../models/articles")
 const Edition = require("../models/edition")
+const Message = require("../models/message")
 
 
 var transporter = nodemailer.createTransport({
@@ -34,13 +38,10 @@ router.get("", (req,res)=> {
 router.post("/users/signup", async (req,res) => {
 
     const newUser = new User(req.body)
-    try{
-        // console.log(req.body)
-        // console.log("Register Route")       
+
+    try{   
         await newUser.save()
         const token = await newUser.generateToken()
-
-
         res.status(201).send({newUser,token})
     } catch (e) {
         console.log(e)
@@ -52,14 +53,14 @@ router.post("/users/signup", async (req,res) => {
 router.post("/users/login", async (req,res) => {
     try{
         const userFound = await User.findByCredentials(req.body.email, req.body.password)
-        // console.log(userFound)
         const token = await userFound.generateToken()
-        // console.log("token")
+        
         res.send({userFound,token})
 
     } catch (e) {
         console.log(e)
-        res.status(400).send(e)
+        callback(new Error(res.status(400).send({"errorMessage":"Invalid user credentials."})))
+        res.status(400).send({"errorMessage":"Invalid user credentials."})
     }
 })
 
@@ -78,7 +79,6 @@ router.get("/users/me",auth,async (req,res)=> {
 // Logout User
 router.post("/users/logout", auth, async (req,res)=>{
     try {
-        // console.log(req.user)
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token!==req.token
         })
@@ -108,13 +108,13 @@ router.get("/users/name/:id", async (req,res)=> {
     try {
         const userName = await User.findById(req.params.id).select("name")
         if (!userName){
-            return res.status(404).send
+            return res.status(404).send({"message":`No user with ID ${req.params.id} found.`})
         }
         res.send(userName.name)
         
         
     } catch (e){
-        res.status(400).send()
+        res.status(400).send({"message":`User with ID ${req.params.id} does not exist.`})
     }
 })
 
@@ -133,13 +133,13 @@ router.patch("/users/me",auth, async (req,res) => {
     try {
         updateFieldsReq.forEach((updateField) => req.user[updateField] = req.body[updateField])
         await req.user.save()
-        // const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new:true, runValidators: true })
         res.send(req.user)
     } catch (e) {
         send.status(400).send(e)
     }
 })
 
+//Deletes user
 router.delete("/users/me", auth, async (req,res) => {
     try {
         await req.user.remove()
@@ -150,6 +150,53 @@ router.delete("/users/me", auth, async (req,res) => {
     }
 })
 
+router.post('/user/securityQuestion/add', auth, async (req, res) => {
+    const { securityQuestion, securityAnswer } = req.body;
+
+    const userID = req.user._id;
+    try {
+        const foundUser = await User.findOne({_id: userID})
+
+        if(!foundUser) {
+            res.status(404).send({"message":`Oops! User with ID ${userID} not found.`})
+        }
+
+        foundUser.securityQuestion = securityQuestion
+        foundUser.securityAnswer = await bcrypt.hash(securityAnswer, 8)
+
+        res.status(200).send({"message": `Security question ${securityQuestion} for user ${foundUser.name} was successfully created. You can use it to reset your password.`})
+    } catch (error) {
+        throw  new Error(error.message)
+    }
+})
+
+router.post('/user/securityQuestion/verify', async (req, res) => {
+    const foundUser = await User.findOne({email: req.body.email})
+    const { securityAnswer } = req.body
+
+    if(!foundUser){ 
+        res.status(404).send({"message": "User not found."})
+    }
+
+    const isCorrect = await bcrypt.compare(securityAnswer, foundUser.securityAnswer)
+
+    if(isCorrect) {
+        foundUser.generatePasswordReset();
+        await foundUser.save()
+
+        resetLink = "http://" + req.headers.host + "/api/users/recover/" + foundUser.resetPasswordToken
+
+        res.send(200).send({"resetLink": `${resetLink}`})
+    }else{
+        res.status(500).send({"message":`Security answer for the user ${foundUser.name} is not correct. Please try again.`})
+    }
+})
+
+router.post('/user/securityQuestion/request', async (req, res) => {
+    const foundUser = await User.findOne({email: req.body.email})
+
+    res.status(200).send({"securityQuestion": `${foundUser.securityQuestion}`})
+})
 
 // @route POST api/users/recover
 // @desc Recover Password - Generates token and Sends password reset email
@@ -190,7 +237,7 @@ router.post('/users/recover',  async (req, res) => {
 
 
     } catch (e) {
-        res.status(500).json({message: err.message})
+        res.status(500).json({message: e.message})
     }
 });
 
@@ -198,7 +245,6 @@ router.post('/users/recover',  async (req, res) => {
 // @route POST api/users/recover/:token
 // @desc    Resets password from the link sent to user email
 // @access Public
-
 router.post('/users/recover/:token', check('password').not().isEmpty().isLength({min: 6}).withMessage('Must be at least 6 chars long'),
 check('confirmPassword', 'Passwords do not match').custom((value, {req}) => (value === req.body.password)), async (req, res) =>{
     
@@ -247,47 +293,19 @@ router.post('/users/confirmed/:id', (req, res) => {
 })
 
 // Contributions
-
 router.get("/users/me/contribution", auth, async (req,res)=>{
     try{
-        // const myTotalContributionCount = await Article.countDocuments({ author:req.user._id})
-        // const mysatireContributionCount = await Article.countDocuments({ author:req.user._id, atype:"satire"})
-        // const myNewsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"news"})
-        // const myFactsContributionCount = await Article.countDocuments({ author:req.user._id, atype:"facts"})
-        // const myEditorialContributionCount = await Article.countDocuments({ author:req.user._id, atype:"editorial"})
-
-        // const totalContributionCount = await Article.countDocuments({})
-        // const totalSatireContributions = await Article.countDocuments({ atype:"editorial"})
-        // const totalNewsContributionCount = await Article.countDocuments({ atype:"news"})
-        // const totalFactsContributionCount = await Article.countDocuments({ atype:"facts"})
-        // const totaleEitorialContributionCount = await Article.countDocuments({ atype:"editorial"})
-
         const contributionList = await User.find({}).select("contributions name")
-        // console.log(allNames)
         res.send(contributionList)
-
-        // res.send({
-        //     totalContributionCount,
-        //     totalSatireContributions,
-        //     totalNewsContributionCount,
-        //     totalFactsContributionCount,
-        //     totaleEitorialContributionCount,
-        //     myTotalContributionCount,
-        //     mysatireContributionCount,
-        //     myNewsContributionCount,
-        //     myFactsContributionCount,
-        //     myEditorialContributionCount
-        // })
     } catch (e){
         console.log(e)
-        res.status(404).send(e)
+        res.status(404).send({"message":"Oops! No contributions found for the selected user."})
     }
 })
 
 
+
 // ------------------------------------------- ARTICLE ROUTES ----------------------------------------------------
-
-
 const upload = multer({
     limits: {
         fileSize: 5000000
@@ -360,7 +378,7 @@ router.post("/articles/comment/:id", auth, async(req, res) =>{
         await foundArticle.save()
         res.send(foundArticle)
     } catch (e){
-        res.status(400).send()
+        res.status(400).send({"message":`Oops! Comment coudld not be posted. Article with ID ${req.params.id} not found.`})
     }
 })
 
@@ -375,11 +393,10 @@ router.get("/articles/:id/picture", async (req,res) => {
         }
 
         res.set("Content-Type","image/png")
-        // console.log(user.avatar)
         res.send(article.picture)
     } catch (e) {
         console.log(e)
-        res.status(404).send(e)
+        res.status(404).send({"message":`Oops! No picture found for article with id ${article.id}.`})
     }
 })
 
@@ -387,11 +404,8 @@ router.get("/articles/:id/picture", async (req,res) => {
 
 // GET /tasks?limit=2&skip=2
 // GET /tasks?sortBy=createdAt:asc
-
 // GET all existing articles or query in the above format to sort results according to attributes.
 router.get("/articles/list", auth, async (req,res) => {
-
-
     const sort = {}
 
     if (req.query.sortBy) {
@@ -400,8 +414,6 @@ router.get("/articles/list", auth, async (req,res) => {
     }
 
     try {
-
-        // const allTasks = await Task.find({owner: req.user._id}) (alternate to the following line)
         await req.user.populate({
             path : "articles",
             options: {
@@ -412,7 +424,7 @@ router.get("/articles/list", auth, async (req,res) => {
         }).execPopulate()
 
         if (!req.user){
-            return res.status(404).send()
+            return res.status(404).send({"message":`Invalid user ID. Please login with a different account and try again.`})
         }
         console.log(req.user.articles)
         res.send(req.user.articles)
@@ -424,26 +436,59 @@ router.get("/articles/list", auth, async (req,res) => {
 
 
 // GET articles according to ID
-router.get("/articles/:id",auth, async (req,res) => {
+router.get("/articles/:id", async (req,res) => {
     const _id = req.params.id
 
     try {
-        // const foundTask = await Task.findById(_id)
-        const foundArticle = await Article.findOne( { _id,author:req.user._id } )
+        const foundArticle = await Article.findOne( { _id } )
         if (!foundArticle){
-            return res.status(404).send()
+            return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
         }
         res.send(foundArticle)
     } catch (e) {
         console.log(e)
-        res.status(500).send()
+        res.status(500).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
     }
+})
+
+//GET approved articles
+router.get('/approvedArticles', async (req, res) => {
+    const approved = "approved"
+    const approvedArticles = await Article.find({approved, createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select('atitle atype author collabAuth approved editionNumber')
+        if (!approvedArticles){
+            throw new Error()
+        }
+        var approvedArticlesWithName = new Array()
+        for (i=0;i<approvedArticles.length;i++){
+            currentAuthorID = approvedArticles[i].author
+            collabAuthorID = approvedArticles[i].collabAuth
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            if(collabAuthorID){
+                collabAuthorName = await User.findById(collabAuthorID).select("name")
+                console.log(currentAuthorName.name, collabAuthorName.name)
+                let currentArticle = approvedArticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                currentArticle["collabAuthorName"] = collabAuthorName.name
+                approvedArticlesWithName.push(currentArticle)
+            }else{
+                console.log(currentAuthorName.name)
+                let currentArticle = approvedArticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                approvedArticlesWithName.push(currentArticle)
+            }
+        }
+
+    if(!approvedArticlesWithName){
+        res.status(404).send({"message":"Sorry, no approved articles could be found at this moment."})
+    }
+
+    res.status(200).send(approvedArticlesWithName)
 })
 
 // PATCH update an article content in the database
 router.patch("/articles/:id", auth, async (req,res) => {
     const updateFieldsReq = Object.keys(req.body)
-    const validFields = ["atype", "atitle","acontent"]
+    const validFields = ["atype", "atitle","acontent", "approved"]
     const isValidateFields = updateFieldsReq.every((field) => validFields.includes(field))
 
     if (!isValidateFields){
@@ -451,18 +496,36 @@ router.patch("/articles/:id", auth, async (req,res) => {
     }
 
     try{
-        const foundArticle = await Article.findOne({_id: req.params.id, author: req.user._id})
-        updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
-    
-        if (!foundArticle){
-            return res.status(404).send()
-        }
-                
-        await foundArticle.save()
-        res.send(foundArticle)
+        if(req.user.isAdmin){
+            const foundArticle = await Article.findOne({_id: req.params.id})
+            updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
+            console.log(req.body)
+            
+            foundArticle.approved = req.body.approved
+
+            if (!foundArticle){
+                return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
+            }
+                    
+            await foundArticle.save()
+            res.send(foundArticle)
+        }else{
+            const foundArticle = await Article.findOne({_id: req.params.id, author: req.user._id})
+            updateFieldsReq.forEach((updateField) => foundArticle[updateField] = req.body[updateField])
+            console.log(req.body)
+            
+            foundArticle.approved = req.body.approved
+
+            if (!foundArticle){
+                return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
+            }
+                    
+            await foundArticle.save()
+            res.send(foundArticle)
+        }   
     } catch (e) {
-        // console.log(e)
-        res.status(400).send()
+        console.log(e)
+        res.status(400).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
     }
 
 })
@@ -471,7 +534,6 @@ router.patch("/articles/:id", auth, async (req,res) => {
 router.delete("/articles/:id", auth, async (req,res) => {
     try {
         const deletedArticle = await Article.findOneAndDelete({_id:req.params.id, author: req.user._id})
-        // console.log(deletedArticle)
         
         if (!deletedArticle){
             return res.status(404).send()
@@ -480,7 +542,6 @@ router.delete("/articles/:id", auth, async (req,res) => {
         // Update User Contribution
         const user = await User.findOne({_id:deletedArticle.author})
         user.contributions.myTotalContribution -=1
-        // console.log("This prints before deleting, after user is updated:",user.contributions.myTotalContribution)
         switch(deletedArticle.atype){
             case "satire":
                 user.contributions.myTotalSatireContribution -=1
@@ -503,53 +564,46 @@ router.delete("/articles/:id", auth, async (req,res) => {
         res.send(deletedArticle)
     } catch (e) {
         console.log(e)
-        res.status(500).send()
+        res.status(500).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
     }
 })
 
 // select edition for article
-
 router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
     try {
 
         const edition = await Edition.findOne({enumber:req.body.edition})
-        // console.log(edition)
         if (!edition){
             return res.status(404).send("Edition Not Found")
         }
 
         var article = await Article.findOne({_id:req.params.id})
-        // console.log(article)
+        
         if(!article){
-            return res.status(404).send("Article Not Found")
+            return res.status(404).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
         }
         article = article
         article.approved = req.body.approved
-        // console.log("before",article)
-        // console.log("edition:",edition._id)
+        
         if (article.approved==="approved"){
             article["edition"] = edition._id
             article["editionNumber"] = edition.enumber
             await article.save()
             res.send(article)
         } else if(article.approved === "rejected") {
-            // console.log("rejected")
+            
             article.edition = undefined
             article.editionNumber = undefined
-            // console.log(article)
+            
             await article.save()
             res.send("article rejected")
         } else {
             res.send("article approved can only be 'pending' or 'approved' or 'rejected' ")
-        }
-        
-        // console.log("after",article)
-
-        
+        }   
 
     } catch (e){
         console.log(e)
-        res.status(400).send()
+        res.status(400).send({"message":"Article approved can only be 'pending' or 'approved' or 'rejected' "})
     }
 })
 
@@ -559,6 +613,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
+
         const allarticles = await Article.find({}).sort('-createdAt').limit(20)
         if (!allarticles){
             throw new Error()
@@ -566,25 +621,31 @@ router.get("/admin/allarticles",auth, async (req,res)=>{
         var allarticlesWithName = new Array()
         for (i=0;i<allarticles.length;i++){
             currentAuthorID = allarticles[i].author
-            currentAuthorName = await User.findById(currentAuthorID).select("name")
-            console.log(currentAuthorName.name)
-            let currentArticle = allarticles[i].toObject()
-            currentArticle["authorName"] = currentAuthorName.name
-            allarticlesWithName.push(currentArticle)
+            collabAuthorID = allarticles[i].collabAuth
+            if(collabAuthorID){
+                currentAuthorName = await User.findById(currentAuthorID).select("name")
+                collabAuthorName = await User.findById(collabAuthorID).select("name")
+                console.log(currentAuthorName.name, collabAuthorName.name)
+                let currentArticle = allarticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                currentArticle["collabAuthorName"] = collabAuthorName.name
+                allarticlesWithName.push(currentArticle)
+            }else{
+                currentAuthorName = await User.findById(currentAuthorID).select("name")
+                console.log(currentAuthorName.name)
+                let currentArticle = allarticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                allarticlesWithName.push(currentArticle)
+            }
         }
-
-        // console.log(allarticles)
         res.send(allarticlesWithName)
     } catch (e){
         console.log(e)
-        res.status(400).send(e)
+        res.status(400).send({"message":"Oops! We have some trouble getting the articles at the moment. Try again later."})
     }
 })
 
-// 
-
 // Dashboard Auth for Client
-
 router.post("/check/auth", async (req,res)=>{
     try{
         const token = req.header("Authorization").replace("Bearer ","") 
@@ -601,22 +662,31 @@ router.post("/check/auth", async (req,res)=>{
         res.send({"admin":false})
     } catch (e) {
         console.log(e)
-        res.status(401).send("Please authenticate")
+        res.status(401).send({"message":`Unauthorized Access! Please authenticate and try again!`})
     }
 })
 
-// ------------------------------------------- Admin Routes -------------------------------------------
-
-
 // create edition
 router.post("/edition/create",auth,adminAuth, async (req,res)=> {
-    const newEdition = new Edition(req.body)
     try{
+
+        const { ename, enumber, edesc, hov, articles } = req.body
+        const newEdition = new Edition({ename, enumber, edesc, hov})
+
         await newEdition.save()
+
+        for (let index = 0; index < articles.length; index++) {
+            const article = await Article.findOne({ _id: articles[index]})
+            article.editionNumber = enumber
+            article.edition = newEdition._id
+            await article.save()
+        }
+
+        console.log(newEdition._id)
         res.status(201).send(newEdition)
     } catch (e){
         console.log(e)
-        res.status(400).send(e)
+        res.status(400).send({"message": `We are facing an issue in creating a new edition at this moment. Please try again later.`})
     }
 })
 
@@ -624,46 +694,44 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
 // get edition details by number
 router.get("/edition/:number", async (req,res)=> {
     try{
-        const edition = await Edition.findOne({enumber:req.params.number})
-        // console.log(edition)
-        await edition.populate({
-            path: "articles"
-        }).execPopulate()
+        const edition = await Edition.findOne({enumber:req.params.number});
+        console.log("Befire pop")
+        console.log(edition)
+        await edition.populate("articles", "atitle acontent atype author").execPopulate()
+
+        console.log("After pop")
+        // await edition.articles.populate({path: "author"})
+        console.log(edition.articles)
 
         var editionWithAuthorNames = edition.toObject()
         var allarticlesWithName = new Array()
         for (i=0;i<edition.articles.length;i++){
-            currentAuthorID = edition.articles[i].author
-            currentAuthorName = await User.findById(currentAuthorID).select("name")
-            console.log(edition.articles.name)
-            let currentArticle = edition.articles[i].toObject()
-            currentArticle["authorName"] = currentAuthorName.name
-            allarticlesWithName.push(currentArticle)
+            tempArticle = edition.articles[i]
+            await tempArticle.populate("author", "name").execPopulate()
+            edition.articles[i] = tempArticle
+            allarticlesWithName.push(tempArticle)
         }
-
-        // console.log(allarticlesWithName)
         editionWithAuthorNames.articles = allarticlesWithName
         
 
         if (!edition){
-            return res.status(404).send()
+            return res.status(404).send({"message":`Oops! Edition number ${req.params.number} not found! Please try again with a valid edition number!`})
         }
-        // res.send(edition.toObject({virtuals: true}))
         res.send(editionWithAuthorNames)
     } catch(e){
         console.log(e)
-        res.status(500).send(e)
+        res.status(500).send({"message": `Editoin number ${req.params.number} cannot be accessed at this moment! Try again later.`})
     }
 })
 
-// all editions list without content
 
+// all editions list without content
 router.get("/edition", async (req,res)=> {
     try{
         const editionList = await Edition.find({}).sort('-createdAt')
 
         if(!editionList){
-            return res.status(404).send("No Editions Found")
+            return res.status(404).send({"message":"No Editions Found"})
         }
 
         res.send(editionList)
@@ -676,7 +744,6 @@ router.get("/edition", async (req,res)=> {
 
 
 // POST HOV link
-
 router.patch("/edition/adminhovpost/:number",auth,adminAuth, async(req,res)=> {
     try{
         const redundantEditionsCheck = await Edition.countDocuments({enumber:req.params.number})
@@ -685,8 +752,10 @@ router.patch("/edition/adminhovpost/:number",auth,adminAuth, async(req,res)=> {
             return res.status(400).send("More than one edition's with enumber:"+req.params.enumber)
         }
         const edition = await Edition.findOne({enumber:req.params.number})
-        if (!edition || !req.body.hov){
-            return res.status(404).send()
+        if (!edition){
+            return res.status(404).send({"message":`Edition number ${req.params.number} not found. Try again with a valid edition number.`})
+        }else if(!req.body.hov){
+            return res.status(420).send({"message":"No HoV link found in your response. PLease submit the form again with a valid HoV link."})
         }
 
         edition.hov.push(req.body.hov)
@@ -694,7 +763,7 @@ router.patch("/edition/adminhovpost/:number",auth,adminAuth, async(req,res)=> {
         res.send(edition)
     } catch (e){
         console.log(e)
-        res.status(400).send(e)
+        res.status(400).send({"message":"We are facing problems with this route at the moment. Please try again later!"})
     }
 })
 
@@ -711,8 +780,6 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
     try{
         const edition = await Edition.findOne({_id: req.params.id})
         updateFieldsReq.forEach((updateField) => edition[updateField] = req.body[updateField])
-
-        // const updatedTask = await Task.findByIdAndUpdate(req.params.id,req.body,{ new: true, runValidators: true})
         if (!edition){
             return res.status(404).send()
         }
@@ -724,6 +791,32 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
         res.status(400).send(e)
     }
 
+})
+
+router.post('/message/post', auth, adminAuth, async (req, res) => {
+    const { message } = req.body
+
+    const user = req.user
+
+    const createdBy = {
+        _id: user._id,
+        name: user.name
+    }
+
+    const newMessage = new Message({ createdAt, message });
+
+    await newMessage.save()
+
+    res.send(200).send(newMessage)
+})
+
+router.get('/messages/allMessages', auth, async (req, res) => {
+    const allMessages = await Message.find()
+
+    if(!allMessages){
+        res.send(404).send({"message":"Oops! No messages found!"})
+    }
+    res.send(200).send(allMessages)
 })
 
 
