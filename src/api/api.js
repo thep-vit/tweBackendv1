@@ -707,7 +707,7 @@ router.post("/check/auth", async (req,res)=>{
 })
 
 // create edition
-router.post("/edition/create",auth,adminAuth, async (req,res)=> {
+router.post("/edition/create",auth, async (req,res)=> {
     try{
 
         const { ename, enumber, edesc, hov, articles } = req.body
@@ -716,7 +716,8 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
         await newEdition.save()
 
         for (let index = 0; index < articles.length; index++) {
-            const article = await Article.findOne({ _id: articles[index]})
+            const _id = ObjectID(articles[index])
+            const article = await Article.findOne({ _id })
             article.editionNumber = enumber
             article.edition = newEdition._id
             await article.save()
@@ -843,7 +844,7 @@ router.post('/message/post', auth, adminAuth, async (req, res) => {
         name: user.name
     }
 
-    const newMessage = new Message({ createdAt, message });
+    const newMessage = new Message({ createdBy, message });
 
     await newMessage.save()
 
