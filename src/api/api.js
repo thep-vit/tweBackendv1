@@ -333,39 +333,66 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
                 collabAuthor: collabAuthObj._id,
                 picture: buffer
             })
+
+            const user = req.user
+            user.contributions.myTotalContribution +=1
+            console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
+            switch(newArticle.atype){
+                case "satire":
+                    user.contributions.myTotalSatireContribution +=1
+                    break
+                case "news":
+                    user.contributions.myTotalNewsContribution +=1
+                    break
+                case "editorial":
+                    user.contributions.myTotalEditorialContribution +=1
+                    break
+                case "facts":
+                    user.contributions.myTotalFactsContribution +=1
+                    break
+                case "movie":
+                user.contributions.myTotalMovieContribution +=1
+                break
+            }
+            await user.save()
+
+            await newArticle.save()
+            res.locals.message = req.body.message
+            res.status(201).send(newArticle)
         }else{
             const newArticle = new Article({
                 ...req.body,
                 author: req.user._id,
                 picture: buffer
             })
-        }
-    
-        await newArticle.save()
+
+            const user = req.user
+            user.contributions.myTotalContribution +=1
+            console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
+            switch(newArticle.atype){
+                case "satire":
+                    user.contributions.myTotalSatireContribution +=1
+                    break
+                case "news":
+                    user.contributions.myTotalNewsContribution +=1
+                    break
+                case "editorial":
+                    user.contributions.myTotalEditorialContribution +=1
+                    break
+                case "facts":
+                    user.contributions.myTotalFactsContribution +=1
+                    break
+                case "movie":
+                user.contributions.myTotalMovieContribution +=1
+                break
+            }
+            await user.save()
+
+            await newArticle.save()
         
-        const user = req.user
-        user.contributions.myTotalContribution +=1
-        console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
-        switch(newArticle.atype){
-            case "satire":
-                user.contributions.myTotalSatireContribution +=1
-                break
-            case "news":
-                user.contributions.myTotalNewsContribution +=1
-                break
-            case "editorial":
-                user.contributions.myTotalEditorialContribution +=1
-                break
-            case "facts":
-                user.contributions.myTotalFactsContribution +=1
-                break
-            case "movie":
-            user.contributions.myTotalMovieContribution +=1
-            break
+            res.locals.message = req.body.message
+            res.status(201).send(newArticle)
         }
-        await user.save()
-        res.locals.message = req.body.message
-        res.status(201).send(newArticle)
     } catch (e) {
         console.log(e)
         res.status(400).send({"message":"Oops! Article submission failed! Please check if you have filled in all fields before trying again."})
