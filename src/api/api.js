@@ -514,7 +514,6 @@ router.get('/approvedArticles', async (req, res) => {
                 approvedArticlesWithName.push(currentArticle)
             }
         }
-        res.send(approvedArticlesWithName)
 
     if(!approvedArticlesWithName){
         res.status(404).send({"message":"Sorry, no approved articles could be found at this moment."})
