@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 const {check } = require('express-validator')
 const nodemailer = require('nodemailer')
 const bcrypt = require('bcryptjs')
+const { ObjectID } = require('mongodb')
 
 const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
@@ -322,17 +323,20 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     try {
         const buffer = await sharp(req.file.buffer).png().toBuffer()
 
-        const { collabAuth } = req.body;
+        const { collabEmail } = req.body;
 
-        if(collabAuth){
-            const collabAuthObj = await User.findOne({email: collabAuth });
+        if(collabEmail){
+            const collabAuthObj = await User.findOne({email: collabEmail });
+            const collabAuth = ObjectID(collabAuthObj._id)
             
             const newArticle = new Article({
                 ...req.body,
                 author: req.user._id,
-                collabAuthor: collabAuthObj._id,
+                collabAuth,
                 picture: buffer
             })
+
+            console.log(collabAuthObj._id)
 
             const user = req.user
             user.contributions.myTotalContribution +=1
