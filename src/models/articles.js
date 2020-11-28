@@ -28,9 +28,7 @@ const articleSchema = mongoose.Schema({
         ref: 'User'
     },
     collabAuth: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'User'
+        type: mongoose.Schema.Types.ObjectId
     },
     picture: {
         type: Buffer

@@ -491,7 +491,7 @@ router.get("/articles/:id", async (req,res) => {
 //GET approved articles
 router.get('/approvedArticles', async (req, res) => {
     const approved = "approved"
-    const approvedArticles = await Article.find({approved})
+    const approvedArticles = await Article.find({approved}).select('atitle atype acontent author collabAuth approved editionNumber')
 
     if(!approvedArticles){
         res.status(404).send({"message":"Sorry, no approved articles could be found at this moment."})
