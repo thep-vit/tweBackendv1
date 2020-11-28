@@ -834,7 +834,7 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
 
 })
 
-router.post('/message/post', auth, adminAuth, async (req, res) => {
+router.post('/messages/post', auth, adminAuth, async (req, res) => {
     const { message } = req.body
 
     const user = req.user
