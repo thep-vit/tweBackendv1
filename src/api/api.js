@@ -848,16 +848,16 @@ router.post('/message/post', auth, adminAuth, async (req, res) => {
 
     await newMessage.save()
 
-    res.send(200).send(newMessage)
+    res.status(200).send(newMessage)
 })
 
 router.get('/messages/allMessages', auth, async (req, res) => {
     const allMessages = await Message.find()
 
     if(!allMessages){
-        res.send(404).send({"message":"Oops! No messages found!"})
+        res.status(404).send({"message":"Oops! No messages found!"})
     }
-    res.send(200).send(allMessages)
+    res.status(200).send(allMessages)
 })
 
 
