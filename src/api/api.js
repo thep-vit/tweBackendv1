@@ -326,14 +326,20 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
 
         if(collabAuth){
             const collabAuthObj = await User.findOne({email: collabAuth });
+            
+            const newArticle = new Article({
+                ...req.body,
+                author: req.user._id,
+                collabAuthor: collabAuthObj._id,
+                picture: buffer
+            })
+        }else{
+            const newArticle = new Article({
+                ...req.body,
+                author: req.user._id,
+                picture: buffer
+            })
         }
-    
-        const newArticle = new Article({
-            ...req.body,
-            author: req.user._id,
-            collabAuthor: collabAuthObj._id,
-            picture: buffer
-        })
     
         await newArticle.save()
         
@@ -456,8 +462,9 @@ router.get("/articles/:id", async (req,res) => {
 })
 
 //GET approved articles
-router.get('/articles/getApproved', auth, async (req, res) => {
-    const approvedArticles = await Article.find({approved: "approved"});
+router.get('/approvedArticles', async (req, res) => {
+    const approved = "approved"
+    const approvedArticles = await Article.find({approved})
 
     if(!approvedArticles){
         res.status(404).send({"message":"Sorry, no approved articles could be found at this moment."})
