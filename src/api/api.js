@@ -491,13 +491,36 @@ router.get("/articles/:id", async (req,res) => {
 //GET approved articles
 router.get('/approvedArticles', async (req, res) => {
     const approved = "approved"
-    const approvedArticles = await Article.find({approved}).select('atitle atype acontent author collabAuth approved editionNumber')
+    const approvedArticles = await Article.find({approved, createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select('atitle atype author collabAuth approved editionNumber')
+        if (!approvedArticles){
+            throw new Error()
+        }
+        var approvedArticlesWithName = new Array()
+        for (i=0;i<approvedArticles.length;i++){
+            currentAuthorID = approvedArticles[i].author
+            collabAuthorID = approvedArticles[i].collabAuth
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            if(collabAuthorID){
+                collabAuthorName = await User.findById(collabAuthorID).select("name")
+                console.log(currentAuthorName.name, collabAuthorName.name)
+                let currentArticle = approvedArticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                currentArticle["collabAuthorName"] = collabAuthorName.name
+                approvedArticlesWithName.push(currentArticle)
+            }else{
+                console.log(currentAuthorName.name)
+                let currentArticle = approvedArticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                approvedArticlesWithName.push(currentArticle)
+            }
+        }
+        res.send(approvedArticlesWithName)
 
-    if(!approvedArticles){
+    if(!approvedArticlesWithName){
         res.status(404).send({"message":"Sorry, no approved articles could be found at this moment."})
     }
 
-    res.status(200).send(approvedArticles)
+    res.status(200).send(approvedArticlesWithName)
 })
 
 // PATCH update an article content in the database
@@ -635,11 +658,22 @@ router.get("/admin/allarticles",auth, async (req,res)=>{
         var allarticlesWithName = new Array()
         for (i=0;i<allarticles.length;i++){
             currentAuthorID = allarticles[i].author
-            currentAuthorName = await User.findById(currentAuthorID).select("name")
-            console.log(currentAuthorName.name)
-            let currentArticle = allarticles[i].toObject()
-            currentArticle["authorName"] = currentAuthorName.name
-            allarticlesWithName.push(currentArticle)
+            collabAuthorID = allarticles[i].collabAuth
+            if(collabAuthorID){
+                currentAuthorName = await User.findById(currentAuthorID).select("name")
+                collabAuthorName = await User.findById(collabAuthorID).select("name")
+                console.log(currentAuthorName.name, collabAuthorName.name)
+                let currentArticle = allarticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                currentArticle["collabAuthorName"] = collabAuthorName.name
+                allarticlesWithName.push(currentArticle)
+            }else{
+                currentAuthorName = await User.findById(currentAuthorID).select("name")
+                console.log(currentAuthorName.name)
+                let currentArticle = allarticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                allarticlesWithName.push(currentArticle)
+            }
         }
         res.send(allarticlesWithName)
     } catch (e){
