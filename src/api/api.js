@@ -851,8 +851,8 @@ router.post('/messages/post', auth, adminAuth, async (req, res) => {
     res.status(200).send(newMessage)
 })
 
-router.get('/messages/allMessages', auth, async (req, res) => {
-    const allMessages = await Message.find()
+router.get('/messages/allMessages', async (req, res) => {
+    const allMessages = await Message.find().sort('-createdAt')
 
     if(!allMessages){
         res.status(404).send({"message":"Oops! No messages found!"})
