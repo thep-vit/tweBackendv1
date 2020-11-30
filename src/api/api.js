@@ -408,19 +408,40 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
 //@method  POST
 //@desc    Allows Admin to POST a comment to a particular post
 //@todo    Add admin auth
-router.post("/articles/comment/:id", auth, async(req, res) =>{
+router.post("/articles/comment/:id", async(req, res) =>{
 
     try{
         const foundArticle = await Article.findOne({_id: req.params.id})
         if(!foundArticle){
             return res.status(404).send()
         }
-        foundArticle.comments.push(req.body.comment);
+        const comment = req.body.comment
+        foundArticle.comments.push({ comment });
         await foundArticle.save()
         res.send(foundArticle)
     } catch (e){
-        res.status(400).send({"message":`Oops! Comment coudld not be posted. Article with ID ${req.params.id} not found.`})
+        res.status(400).send({e})
     }
+})
+
+router.get('/articles/comment', async (req, res) => {
+    try {
+        const allComments = await Article.find().select("comments")
+
+        if(!allComments){
+            res.status(404).send({"message": "Oops! looks like no one commented on any of the articles!"})
+        }else{
+            res.status(200).send(allComments)
+        }
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
+
+router.get('/articles/getComment/:id', async (req,res) => {
+    const foundArticle = await Article.findOne({_id: req.params.id})
+
+    res.status(200).send(foundArticle.comments)
 })
 
 // GET picture
