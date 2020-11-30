@@ -481,7 +481,7 @@ router.get("/articles/list", auth, async (req,res) => {
             options: {
                 limit: parseInt(req.query.limit),
                 skip: parseInt(req.query.skip),
-                sort
+                // sort
             }
         }).execPopulate()
 
