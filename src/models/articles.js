@@ -37,7 +37,10 @@ const articleSchema = mongoose.Schema({
     comments: [
         {
             comment :{
-                type:String
+                type: String
+            },
+            createdBy :{
+                type: String
             }
         }
     ],

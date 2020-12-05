@@ -415,8 +415,17 @@ router.post("/articles/comment/:id", auth, async(req, res) =>{
         if(!foundArticle){
             return res.status(404).send()
         }
-        const comment = req.body.comment
-        foundArticle.comments.push({ comment });
+
+        const newComment = req.body.comment
+
+        createdBy = req.user.name
+
+        const comment = {
+            comment: newComment, 
+            createdBy
+        }
+
+        foundArticle.comments.push(comment);
         await foundArticle.save()
         res.send(foundArticle)
     } catch (e){
