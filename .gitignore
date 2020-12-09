@@ -3,3 +3,4 @@ config
 twe.postman_collection.json
 backenProgresDiagram.drawio
 .DS_Store
+.env
