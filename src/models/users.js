@@ -64,6 +64,11 @@ resetPasswordExpires: {
       default: false
   },
 
+  onboarding: {
+      type: Boolean,
+      default: false
+  },
+  
   securityQuestion: {
       type: String
   },
@@ -110,14 +115,7 @@ userSchema.virtual( "articles", {
     foreignField : "author"
 })
 
-// userSchema.virtual( "articles", {  
-//     ref: "Article",
-//     localField: "_id",
-//     foreignField : "collabAuthor"
-// })
-
-
-//find and login users
+//Find and login users
 
 userSchema.statics.findByCredentials = async (email, password) => {
     const findUser = await User.findOne({ email })
@@ -136,8 +134,6 @@ userSchema.statics.findByCredentials = async (email, password) => {
 //hash plain text password before save
 userSchema.pre("save", async function(next) {
     const user = this
-    // console.log("this prints before saving")
-
     if (user.isModified("password")) {
         user.password = await bcrypt.hash(user.password, 8)
     }
@@ -159,8 +155,7 @@ userSchema.methods.toJSON = function () {
     return userObject
 }
 
-//token generation and appending in model
-
+//Token generation and appending in model
 userSchema.methods.generateToken = async function () {
     const findUser = this
     const token = jwt.sign({ _id:findUser._id.toString(), isAdmin:findUser.isAdmin.toString() }, process.env.JWT_SECRET)

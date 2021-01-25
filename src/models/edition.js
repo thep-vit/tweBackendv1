@@ -29,13 +29,13 @@ const editionSchema = mongoose.Schema({
     hov: [{
         // type: mongoose.SchemaTypes.URL
         type:String
+    }],
+    earticles:[{
+        earticle: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Article'
+        }
     }]
-    // earticles:[{
-    //     earticle: {
-    //         type: mongoose.Schema.Types.ObjectId,
-    //         ref: 'Article'
-    //     }
-    // }]
 },{
     timestamps: true
 })
