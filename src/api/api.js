@@ -406,9 +406,6 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     
 })
 
-    
-})
-
 //@route   /api/articles/comment/:id
 //@method  POST
 //@desc    Allows Admin to POST a comment to a particular post
@@ -726,8 +723,6 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
         const allarticles = await Article.find({createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select("-picture")
-
-        const allarticles = await Article.find({}).sort('-createdAt').limit(20)
         if (!allarticles){
             throw new Error()
         }
@@ -793,8 +788,7 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
         for (let index = 0; index < articles.length; index++) {
             const _id = ObjectID(articles[index])
             const article = await Article.findOne({ _id })
-
-            const article = await Article.findOne({ _id: articles[index]})
+            
             article.editionNumber = enumber
             article.edition = newEdition._id
             await article.save()
