@@ -58,7 +58,9 @@ router.post("/users/login", async (req,res) => {
 
     } catch (e) {
         console.log(e)
+
         // throw new Error(res.status(400).send({"errorMessage":"Invalid user credentials."}))
+        callback(new Error(res.status(400).send({"errorMessage":"Invalid user credentials."})))
         res.status(400).send({"errorMessage":"Invalid user credentials."})
     }
 })
@@ -404,6 +406,9 @@ router.post("/articles",auth, upload.single("picture"), async(req,res)=>{
     
 })
 
+    
+})
+
 //@route   /api/articles/comment/:id
 //@method  POST
 //@desc    Allows Admin to POST a comment to a particular post
@@ -429,7 +434,9 @@ router.post("/articles/comment/:id", auth, async(req, res) =>{
         await foundArticle.save()
         res.send(foundArticle)
     } catch (e){
-        res.status(400).send({e})
+      
+        res.status(400).send({"message":`Oops! Comment coudld not be posted. Article with ID ${req.params.id} not found.`})
+      
     }
 })
 
@@ -520,6 +527,40 @@ router.get("/articles/:id", async (req,res) => {
         console.log(e)
         res.status(500).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
     }
+})
+
+//GET approved articles
+router.get('/approvedArticles', async (req, res) => {
+    const approved = "approved"
+    const approvedArticles = await Article.find({approved, createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select('atitle atype author collabAuth approved editionNumber')
+        if (!approvedArticles){
+            throw new Error()
+        }
+        var approvedArticlesWithName = new Array()
+        for (i=0;i<approvedArticles.length;i++){
+            currentAuthorID = approvedArticles[i].author
+            collabAuthorID = approvedArticles[i].collabAuth
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            if(collabAuthorID){
+                collabAuthorName = await User.findById(collabAuthorID).select("name")
+                console.log(currentAuthorName.name, collabAuthorName.name)
+                let currentArticle = approvedArticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                currentArticle["collabAuthorName"] = collabAuthorName.name
+                approvedArticlesWithName.push(currentArticle)
+            }else{
+                console.log(currentAuthorName.name)
+                let currentArticle = approvedArticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                approvedArticlesWithName.push(currentArticle)
+            }
+        }
+
+    if(!approvedArticlesWithName){
+        res.status(404).send({"message":"Sorry, no approved articles could be found at this moment."})
+    }
+
+    res.status(200).send(approvedArticlesWithName)
 })
 
 //GET approved articles
@@ -685,6 +726,8 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
         const allarticles = await Article.find({createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select("-picture")
+
+        const allarticles = await Article.find({}).sort('-createdAt').limit(20)
         if (!allarticles){
             throw new Error()
         }
@@ -737,7 +780,9 @@ router.post("/check/auth", async (req,res)=>{
 })
 
 // create edition
-router.post("/edition/create",auth, async (req,res)=> {
+
+router.post("/edition/create",auth,adminAuth, async (req,res)=> {
+
     try{
 
         const { ename, enumber, edesc, hov, articles } = req.body
@@ -748,6 +793,8 @@ router.post("/edition/create",auth, async (req,res)=> {
         for (let index = 0; index < articles.length; index++) {
             const _id = ObjectID(articles[index])
             const article = await Article.findOne({ _id })
+
+            const article = await Article.findOne({ _id: articles[index]})
             article.editionNumber = enumber
             article.edition = newEdition._id
             await article.save()
@@ -864,6 +911,7 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
 
 })
 
+
 router.post('/messages/post', auth, adminAuth, async (req, res) => {
     const { message } = req.body
 
@@ -888,6 +936,7 @@ router.get('/messages/allMessages', async (req, res) => {
         res.status(404).send({"message":"Oops! No messages found!"})
     }
     res.status(200).send(allMessages)
+
 })
 
 
