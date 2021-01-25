@@ -38,7 +38,6 @@ router.get("", (req,res)=> {
 router.post("/users/signup", async (req,res) => {
 
     const newUser = new User(req.body)
-
     try{   
         await newUser.save()
         const token = await newUser.generateToken()
@@ -59,6 +58,8 @@ router.post("/users/login", async (req,res) => {
 
     } catch (e) {
         console.log(e)
+
+        // throw new Error(res.status(400).send({"errorMessage":"Invalid user credentials."}))
         callback(new Error(res.status(400).send({"errorMessage":"Invalid user credentials."})))
         res.status(400).send({"errorMessage":"Invalid user credentials."})
     }
@@ -323,42 +324,84 @@ const upload = multer({
 router.post("/articles",auth, upload.single("picture"), async(req,res)=>{    
     try {
         const buffer = await sharp(req.file.buffer).png().toBuffer()
-    
-        const newArticle = new Article({
-            ...req.body,
-            author: req.user._id,
-            picture: buffer
-        })
-    
-        await newArticle.save()
+
+        const { collabEmail } = req.body;
+
+        if(collabEmail){
+            const collabAuthObj = await User.findOne({email: collabEmail });
+            const collabAuth = ObjectID(collabAuthObj._id)
+            
+            const newArticle = new Article({
+                ...req.body,
+                author: req.user._id,
+                collabAuth,
+                picture: buffer
+            })
+
+            console.log(collabAuthObj._id)
+
+            const user = req.user
+            user.contributions.myTotalContribution +=1
+            console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
+            switch(newArticle.atype){
+                case "satire":
+                    user.contributions.myTotalSatireContribution +=1
+                    break
+                case "news":
+                    user.contributions.myTotalNewsContribution +=1
+                    break
+                case "editorial":
+                    user.contributions.myTotalEditorialContribution +=1
+                    break
+                case "facts":
+                    user.contributions.myTotalFactsContribution +=1
+                    break
+                case "movie":
+                user.contributions.myTotalMovieContribution +=1
+                break
+            }
+            await user.save()
+
+            await newArticle.save()
+            res.locals.message = req.body.message
+            res.status(201).send(newArticle)
+        }else{
+            const newArticle = new Article({
+                ...req.body,
+                author: req.user._id,
+                picture: buffer
+            })
+
+            const user = req.user
+            user.contributions.myTotalContribution +=1
+            console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
+            switch(newArticle.atype){
+                case "satire":
+                    user.contributions.myTotalSatireContribution +=1
+                    break
+                case "news":
+                    user.contributions.myTotalNewsContribution +=1
+                    break
+                case "editorial":
+                    user.contributions.myTotalEditorialContribution +=1
+                    break
+                case "facts":
+                    user.contributions.myTotalFactsContribution +=1
+                    break
+                case "movie":
+                user.contributions.myTotalMovieContribution +=1
+                break
+            }
+            await user.save()
+
+            await newArticle.save()
         
-        const user = req.user
-        user.contributions.myTotalContribution +=1
-        console.log("This prints before saving, after user is updated:",user.contributions.myTotalContribution)
-        switch(newArticle.atype){
-            case "satire":
-                user.contributions.myTotalSatireContribution +=1
-                break
-            case "news":
-                user.contributions.myTotalNewsContribution +=1
-                break
-            case "editorial":
-                user.contributions.myTotalEditorialContribution +=1
-                break
-            case "facts":
-                user.contributions.myTotalFactsContribution +=1
-                break
-            case "movie":
-            user.contributions.myTotalMovieContribution +=1
-            break
+            res.locals.message = req.body.message
+            res.status(201).send(newArticle)
         }
-        await user.save()
-        res.locals.message = req.body.message
-        // res.redirect("/users/dashboard").json( { message: 'your message' });
-        res.status(201).send(newArticle)
     } catch (e) {
         console.log(e)
-        res.status(400).send(e)
+        res.status(400).send({"message":"Oops! Article submission failed! Please check if you have filled in all fields before trying again."})
     }
     
 })
@@ -374,12 +417,44 @@ router.post("/articles/comment/:id", auth, async(req, res) =>{
         if(!foundArticle){
             return res.status(404).send()
         }
-        foundArticle.comments.push(req.body.comment);
+
+        const newComment = req.body.comment
+
+        createdBy = req.user.name
+
+        const comment = {
+            comment: newComment, 
+            createdBy
+        }
+
+        foundArticle.comments.push(comment);
         await foundArticle.save()
         res.send(foundArticle)
     } catch (e){
+      
         res.status(400).send({"message":`Oops! Comment coudld not be posted. Article with ID ${req.params.id} not found.`})
+      
     }
+})
+
+router.get('/articles/comment', auth, async (req, res) => {
+    try {
+        const allComments = await Article.find().select("comments")
+
+        if(!allComments){
+            res.status(404).send({"message": "Oops! looks like no one commented on any of the articles!"})
+        }else{
+            res.status(200).send(allComments)
+        }
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
+
+router.get('/articles/getComment/:id', async (req,res) => {
+    const foundArticle = await Article.findOne({_id: req.params.id})
+
+    res.status(200).send(foundArticle.comments)
 })
 
 // GET picture
@@ -449,6 +524,40 @@ router.get("/articles/:id", async (req,res) => {
         console.log(e)
         res.status(500).send({"message":`Sorry. No article with ID ${req.params.id} was found.`})
     }
+})
+
+//GET approved articles
+router.get('/approvedArticles', async (req, res) => {
+    const approved = "approved"
+    const approvedArticles = await Article.find({approved, createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select('atitle atype author collabAuth approved editionNumber')
+        if (!approvedArticles){
+            throw new Error()
+        }
+        var approvedArticlesWithName = new Array()
+        for (i=0;i<approvedArticles.length;i++){
+            currentAuthorID = approvedArticles[i].author
+            collabAuthorID = approvedArticles[i].collabAuth
+            currentAuthorName = await User.findById(currentAuthorID).select("name")
+            if(collabAuthorID){
+                collabAuthorName = await User.findById(collabAuthorID).select("name")
+                console.log(currentAuthorName.name, collabAuthorName.name)
+                let currentArticle = approvedArticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                currentArticle["collabAuthorName"] = collabAuthorName.name
+                approvedArticlesWithName.push(currentArticle)
+            }else{
+                console.log(currentAuthorName.name)
+                let currentArticle = approvedArticles[i].toObject()
+                currentArticle["authorName"] = currentAuthorName.name
+                approvedArticlesWithName.push(currentArticle)
+            }
+        }
+
+    if(!approvedArticlesWithName){
+        res.status(404).send({"message":"Sorry, no approved articles could be found at this moment."})
+    }
+
+    res.status(200).send(approvedArticlesWithName)
 })
 
 //GET approved articles
@@ -613,8 +722,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
-
-        const allarticles = await Article.find({}).sort('-createdAt').limit(20)
+        const allarticles = await Article.find({createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select("-picture")
         if (!allarticles){
             throw new Error()
         }
@@ -667,7 +775,9 @@ router.post("/check/auth", async (req,res)=>{
 })
 
 // create edition
+
 router.post("/edition/create",auth,adminAuth, async (req,res)=> {
+
     try{
 
         const { ename, enumber, edesc, hov, articles } = req.body
@@ -676,7 +786,9 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
         await newEdition.save()
 
         for (let index = 0; index < articles.length; index++) {
-            const article = await Article.findOne({ _id: articles[index]})
+            const _id = ObjectID(articles[index])
+            const article = await Article.findOne({ _id })
+            
             article.editionNumber = enumber
             article.edition = newEdition._id
             await article.save()
@@ -793,7 +905,8 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
 
 })
 
-router.post('/message/post', auth, adminAuth, async (req, res) => {
+
+router.post('/messages/post', auth, adminAuth, async (req, res) => {
     const { message } = req.body
 
     const user = req.user
@@ -803,20 +916,21 @@ router.post('/message/post', auth, adminAuth, async (req, res) => {
         name: user.name
     }
 
-    const newMessage = new Message({ createdAt, message });
+    const newMessage = new Message({ createdBy, message });
 
     await newMessage.save()
 
-    res.send(200).send(newMessage)
+    res.status(200).send(newMessage)
 })
 
-router.get('/messages/allMessages', auth, async (req, res) => {
-    const allMessages = await Message.find()
+router.get('/messages/allMessages', async (req, res) => {
+    const allMessages = await Message.find().sort('-createdAt')
 
     if(!allMessages){
-        res.send(404).send({"message":"Oops! No messages found!"})
+        res.status(404).send({"message":"Oops! No messages found!"})
     }
-    res.send(200).send(allMessages)
+    res.status(200).send(allMessages)
+
 })
 
 

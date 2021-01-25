@@ -36,8 +36,12 @@ const articleSchema = mongoose.Schema({
     },
     comments: [
         {
-            type:String,
-            trim: true
+            comment :{
+                type: String
+            },
+            createdBy :{
+                type: String
+            }
         }
     ],
     approved:{
