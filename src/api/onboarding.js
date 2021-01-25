@@ -6,7 +6,7 @@ const { ObjectID } = require('mongodb')
 const User = require("../models/users")
 const {auth, adminAuth } = require("../middleware/auth")
 
-router.patch('/onboard', auth, async (req, res) => {
+router.patch('/', auth, async (req, res) => {
     const user = req.user
 
     try {
