@@ -31,6 +31,9 @@ router.get("", (req,res)=> {
     res.send()
 })
 
+
+// ------------------------------------------- USER ROUTES ----------------------------------------------------
+
 // Create Account
 router.post("/users/signup", async (req,res) => {
 
@@ -56,8 +59,8 @@ router.post("/users/login", async (req,res) => {
     } catch (e) {
         console.log(e)
 
-        // throw new Error(res.status(400).send({"errorMessage":"Invalid user credentials."}))
-        callback(new Error(res.status(400).send({"errorMessage":"Invalid user credentials."})))
+        throw new Error(res.status(400).send({"errorMessage":"Invalid user credentials."}))
+        // callback(new Error(res.status(400).send({"errorMessage":"Invalid user credentials."})))
         res.status(400).send({"errorMessage":"Invalid user credentials."})
     }
 })
@@ -300,6 +303,8 @@ router.get("/users/me/contribution", auth, async (req,res)=>{
         res.status(404).send({"message":"Oops! No contributions found for the selected user."})
     }
 })
+
+
 
 // ------------------------------------------- ARTICLE ROUTES ----------------------------------------------------
 const upload = multer({
@@ -717,7 +722,7 @@ router.patch("/articles/select/edition/:id", auth, adminAuth, async(req,res)=>{
 // Get all existing articles
 router.get("/admin/allarticles",auth, async (req,res)=>{
     try{
-        const allarticles = await Article.find({createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select("atype atitle author collabAuth approved")
+        const allarticles = await Article.find({createdAt: { $gte: new Date((new Date().getTime() - (20 * 24 * 60 * 60 * 1000)))} }).select("-picture")
         if (!allarticles){
             throw new Error()
         }
@@ -769,7 +774,8 @@ router.post("/check/auth", async (req,res)=>{
     }
 })
 
-//Create edition
+// create edition
+
 router.post("/edition/create",auth,adminAuth, async (req,res)=> {
 
     try{
@@ -806,6 +812,7 @@ router.get("/edition/:number", async (req,res)=> {
         await edition.populate("articles", "atitle acontent atype author").execPopulate()
 
         console.log("After pop")
+        // await edition.articles.populate({path: "author"})
         console.log(edition.articles)
 
         var editionWithAuthorNames = edition.toObject()
@@ -898,6 +905,7 @@ router.patch("/edition/update/:id",auth,adminAuth,async (req,res)=>{
 
 })
 
+
 router.post('/messages/post', auth, adminAuth, async (req, res) => {
     const { message } = req.body
 
@@ -924,5 +932,7 @@ router.get('/messages/allMessages', async (req, res) => {
     res.status(200).send(allMessages)
 
 })
+
+
 
 module.exports = router

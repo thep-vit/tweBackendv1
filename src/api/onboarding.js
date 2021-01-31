@@ -18,10 +18,10 @@ router.patch('/', auth, async (req, res) => {
 
             res.send(foundUser).status(200)
         }
-        res.send({"error": "Oops! No user with that email address was found! Please try again with a different email address."}).status(404);
+        res.status(404).send({"error": "Oops! No user with that email address was found! Please try again with a different email address."});
 
     } catch (error) {
-        res.send(error).status(500)
+        res.status(500).send(error)
     }
 })
 
@@ -32,12 +32,12 @@ router.get('/isOnboarded', auth, async (req,res) => {
         const foundUser = await User.findOne({email: user.email})
         
         if(foundUser){
-            res.send(foundUser.onboarding).status(200)
+            res.status(200).send(foundUser.onboarding)
         }
-        res.send({"error": "Oops! No user with that email address was found! Please try again with a different email address."}).status(404);
+        res.status(404).send({"error": "Oops! No user with that email address was found! Please try again with a different email address."});
 
     } catch (error) {
-        res.send(error).status(500)
+        res.status(500).send(error)
     }
 })
 
