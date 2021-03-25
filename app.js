@@ -7,6 +7,7 @@ const session = require('express-session');
 const mongoose = require("mongoose")
 
 const userRouter = require('./routes/user');
+const adminRouter = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,7 +37,8 @@ mongoose.connect(process.env.MONGODB_URI,{
     console.log("MONGO DB CONNECTED!")
 }).catch((e)=>console.log("Cannot Connect to Mongo",e))
 
-app.use('/users', userRouter);
+app.use('/users/', userRouter);
+app.use('/admin/', adminRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port: ${PORT}.`);
