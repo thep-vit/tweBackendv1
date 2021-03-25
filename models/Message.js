@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require('mongoose');
 
 const messageSchema = mongoose.Schema({
     message: {
@@ -10,14 +10,14 @@ const messageSchema = mongoose.Schema({
     },
     createdBy: {
         _id: {
-            type: String,
+            type: String
         },
-        name: {
-            type: String,
+        name:{
+            type: String
         }
     }
 })
 
-const Message = mongoose.model('Message',messageSchema)
+const Message = mongoose.model('Message', messageSchema);
 
-module.exports = Message
+module.exports = Message;
