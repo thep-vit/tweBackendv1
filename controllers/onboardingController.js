@@ -5,11 +5,13 @@ exports.onboarding = async (req, res) => {
     try {
         const foundUser = await User.findOne({ email: user.email });
 
+	console.log(foundUser);
+
         if(foundUser){
             foundUser.onboarding = true;
             await foundUser.save();
 
-            res.send(foundUser).status(200);
+            res.send({ foundUser: foundUser }).status(200);
         }
 
         res.status(404).send({"error": "Oops! No user is associated with that email address!"});

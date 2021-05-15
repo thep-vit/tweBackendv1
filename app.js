@@ -8,6 +8,7 @@ const mongoose = require("mongoose")
 
 const userRouter = require('./routes/user');
 const adminRouter = require('./routes/admin');
+const onboardingRouter = require('./routes/onboarding');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,6 +40,7 @@ mongoose.connect(process.env.MONGODB_URI,{
 
 app.use('/users/', userRouter);
 app.use('/admin/', adminRouter);
+app.use('/onboard/', onboardingRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port: ${PORT}.`);
