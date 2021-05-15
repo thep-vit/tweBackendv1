@@ -17,32 +17,32 @@ const upload = multer({
     }
 })
 
-router.post('/articles', auth, upload.single("picture"), article.postArticle);
+router.post('/', auth, upload.single("picture"), article.postArticle);
 
-router.post('/articles/comment/:id', auth, article.postComment);
+router.post('/comment/:id', auth, article.postComment);
 
-router.get('/articles/comment/', article.getComments);
+router.get('/comment/', article.getComments);
 
-router.get('/articles/getComment/:id', article.getArticleComment);
+router.get('/getComment/:id', article.getArticleComment);
 
-router.get('/aricles/:id/picture', article.getArticlePicture);
+router.get('/:id/picture', article.getArticlePicture);
 
 // GET /tasks?limit=2&skip=2
 // GET /tasks?sortBy=createdAt:asc
 // GET all existing articles or query in the above format to sort results according to attributes.
-router.get("/articles/list", auth, article.getArticleList);
+router.get("/list", auth, article.getArticleList);
 
-router.get("/articles/:id", article.getArticleFromID);
+router.get("/:id", article.getArticleFromID);
 
 router.get('/approvedArticles', article.getApproved);
 
 // PATCH update an article content in the database
-router.patch("/articles/:id", auth, article.patchArticle);
+router.patch("/:id", auth, article.patchArticle);
 
 // DELETE existing article
-router.delete("/articles/:id", auth, article.deleteArticle);
+router.delete("/:id", auth, article.deleteArticle);
 
 // select edition for article
-router.patch("/articles/select/edition/:id", auth, adminAuth, article.selectEdition);
+router.patch("/select/edition/:id", auth, adminAuth, article.selectEdition);
 
 module.exports = router;
