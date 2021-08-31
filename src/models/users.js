@@ -9,6 +9,14 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  profile: {
+      avatar: {
+          type: Buffer
+      },
+      bio: {
+          type: String
+      }
+  },
   email: {
     type: String,
     required: true,
