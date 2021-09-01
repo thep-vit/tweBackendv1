@@ -1,8 +1,6 @@
 require("./db/mongo")
 const userRouter = require("./routes/users")
-const articleRouter = require("./routes/articles")
 const indexRouter = require("./routes/index")
-const resetRouter = require("./routes/reset");
 const apiRouter = require("./api/api")
 const onboardRouter = require("./api/onboarding")
 require('dotenv').config()
@@ -69,12 +67,10 @@ app.use(function(req, res, next){
 
 // Set Routers
 app.use("/",indexRouter)
-app.use("/users",userRouter)
-app.use("/articles",articleRouter)
-app.use("/reset",resetRouter)
 app.use("/api",apiRouter)
+app.use("/user",userRouter)
 app.use("/api/onboard", onboardRouter)
 
 app.listen(port,()=>{
-    console.log("Server Up on port"+port)
+    console.log("Server Up on port "+port)
 })
