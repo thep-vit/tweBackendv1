@@ -30,7 +30,7 @@
     "nodemailer": "^6.4.16",
     "path": "^0.12.7",
     "sharp": "^0.26.3",
-    "validator": "^13.1.1"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
