@@ -807,7 +807,7 @@ router.post("/edition/create",auth,adminAuth, async (req,res)=> {
 router.get("/edition/:number", async (req,res)=> {
     try{
         const edition = await Edition.findOne({enumber:req.params.number});
-        console.log("Befire pop")
+        console.log("Before pop")
         console.log(edition)
         await edition.populate("articles", "atitle acontent atype author").execPopulate()
 
@@ -850,6 +850,21 @@ router.get("/edition", async (req,res)=> {
     } catch(e){
         console.log(e)
         res.status(400).send(e)
+    }
+})
+
+router.get('/latestedition', async (req, res) => {
+    try {
+        const allEditions = await Edition.find().sort('-createdAt');
+
+        if(!allEditions){
+            res.status(404).send({'message': 'No editions found!'});
+        }
+
+        res.send(allEditions[0]);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
     }
 })
 
