@@ -861,7 +861,21 @@ router.get('/latestedition', async (req, res) => {
             res.status(404).send({'message': 'No editions found!'});
         }
 
-        res.send(allEditions[0]);
+        const latestEdition = allEditions[0];
+
+        await latestEdition.populate("articles", "atitle acontent atype author").execPopulate()
+
+        var latestEditionWithAuthorNames = latestEdition.toObject()
+        var allarticlesWithName = new Array()
+        for (i=0;i<latestEdition.articles.length;i++){
+            tempArticle = latestEdition.articles[i]
+            await tempArticle.populate("author", "name").execPopulate()
+            latestEdition.articles[i] = tempArticle
+            allarticlesWithName.push(tempArticle)
+        }
+        latestEditionWithAuthorNames.articles = allarticlesWithName;
+        
+        res.send(latestEditionWithAuthorNames);
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
