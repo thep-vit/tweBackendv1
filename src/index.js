@@ -3,6 +3,8 @@ const userRouter = require("./routes/users")
 const indexRouter = require("./routes/index")
 const apiRouter = require("./api/api")
 const onboardRouter = require("./api/onboarding")
+const resetRouter = require("./api/reset")
+
 require('dotenv').config()
 
 
@@ -70,6 +72,7 @@ app.use("/",indexRouter)
 app.use("/api",apiRouter)
 app.use("/user",userRouter)
 app.use("/api/onboard", onboardRouter)
+app.use("/api/reset", resetRouter)
 
 app.listen(port,()=>{
     console.log("Server Up on port "+port)

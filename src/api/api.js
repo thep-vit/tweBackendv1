@@ -59,8 +59,6 @@ router.post("/users/login", async (req,res) => {
     } catch (e) {
         console.log(e)
 
-        // throw new Error(res.status(400).send({"errorMessage":"Invalid user credentials."}))
-        callback(new Error(res.status(400).send({"errorMessage":"Invalid user credentials."})))
         res.status(400).send({"errorMessage":"Invalid user credentials."})
     }
 })
