@@ -27,7 +27,7 @@ router.post("/", async (req, res) => {
 		if (!foundUser) {
 			return res
 				.status(401)
-				.json({
+				.send({
 					message:
 						"The email address " +
 						req.body.email +
